@@ -1,10 +1,22 @@
 #include "disassembler.h"
 
 /*
-    *codebuffer is a pointer to 8080 assembly code
-    pc is the offset within the code
+    Disassemble8080Op:
+    Disassemble and print the assembly instruction at the location in
+    *codebuffer with an offset of pc bytes.
 
-    returns the number of bytes in the opcode
+    *codebuffer: pointer to assembled 8080 binary code
+    pc: offset (in bytes) within the code
+
+    return: the size (in bytes) of the instruction pc refers to
+
+    NOTE:
+        Data interleaved within valid instructions will not be disassembled
+        properly (The data will be processed as invalid or erroneous
+        assembly instructions).
+
+        For a correct interpretation of Space Invaders code, see
+        http://computerarcheology.com/Arcade/SpaceInvaders/Code.html
 */
 int Disassemble8080Op(unsigned char *codebuffer, int pc)
 {
