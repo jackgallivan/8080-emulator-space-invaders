@@ -1,0 +1,866 @@
+#include "8080emulator.h"
+
+/*
+    parity:
+    Sets parity flag when the input has an even parity and unsets it it has an odd parity
+    x: integer value
+    size: the size of the math instruction, in bits
+    return: the value of the parity flag: 0 if set, 1 if unset
+*/
+static int parity(int x, int size)
+{
+	int i;
+	int p = 0;
+	x = (x & ((1<<size)-1));
+	for (i=0; i<size; i++)
+	{
+		if (x & 0x1) p++;
+		x = x >> 1;
+	}
+	return (0 == (p & 0x1));
+}
+
+// Number of cycles per instruction
+// Referenced from Intel 8080 CPU User Manual
+unsigned char cycles8080[] = {
+	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x00..0x0f
+	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x10..0x1f
+	4, 10, 16, 5, 5, 5, 7, 4, 4, 10, 16, 5, 5, 5, 7, 4, //etc
+	4, 10, 13, 5, 10, 10, 10, 4, 4, 10, 13, 5, 5, 5, 7, 4,
+	
+	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5, //0x40..0x4f
+	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
+	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
+	7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 5,
+	
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4, //0x80..8x4f
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+	
+	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11, //0xc0..0xcf
+	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11, 
+	11, 10, 10, 18, 17, 11, 7, 11, 11, 5, 10, 5, 17, 17, 7, 11, 
+	11, 10, 10, 4, 17, 11, 7, 11, 11, 5, 10, 4, 17, 17, 7, 11, 
+};
+
+/*
+    ArithFlagsA:
+    Update Zero, Sign and Parity flags upon updating A register using
+	addition and subtraction instructions
+    state: state of registers and memory
+	res: result of arithmetic operation
+*/
+static void ArithFlagsA(State8080 *state, uint16_t res)
+{
+	state->cc.cy = (res > 0xff);
+	state->cc.z = ((res&0xff) == 0);
+	state->cc.s = (0x80 == (res & 0x80));
+	state->cc.p = parity(res&0xff, 8);
+}
+
+/*
+    UnimplementedInstruction:
+    Generates error when an unimplemented instruction is found
+    state: state of registers and memory
+*/
+void UnimplementedInstruction(State8080* state)
+{
+	//pc will have advanced one, so undo that
+	printf ("Error: Unimplemented instruction\n");
+	state->pc--;
+	exit(1);
+}
+
+/*
+    WriteMem:
+    Stores input value directly in specified memory location
+    state: state of registers and memory
+	address: direct location in memory
+	value: value to store in memory
+*/
+static void WriteMem(State8080* state, uint16_t address, uint8_t value)
+{
+    if (address >= 0x2000 && address < 0x4000)
+	{
+        state->memory[address] = value;
+	}
+	else
+	{
+		return;
+	}
+}
+
+/*
+    ReadFromHL:
+    Read value from memory
+    state: state of registers and memory
+*/
+static uint8_t ReadFromHL(State8080* state)
+{
+    uint16_t offset = (state->h << 8) | state->l;
+    return state->memory[offset];
+}
+
+/*
+    WriteFromHL:
+    Write input value from memory
+    state: state of registers and memory
+	value: input value to write to memory
+*/
+static void WriteToHL(State8080* state, uint8_t value)
+{
+    uint16_t offset = (state->h << 8) | state->l;
+    WriteMem(state, offset, value);
+}
+
+/*
+    FlagsZSP:
+    Update Zero, Sign and Parity flags upon adding immediate
+    state: state of registers and memory
+	value: ...
+*/
+static void FlagsZSP(State8080 *state, uint8_t value)
+{
+    state->cc.z = (value == 0);
+    state->cc.s = (0x80 == (value & 0x80));
+    state->cc.p = parity(value, 8);    
+}
+
+/*
+    Emulate8080Op:
+    Emulate instructions of an 8080 processor using corresponding opcodes
+    state: state of registers and memory
+*/
+int Emulate8080Op(State8080* state)
+{
+	int cycles = 4;
+	unsigned char *opcode = &state->memory[state->pc];
+
+	switch(*opcode)
+	{
+
+        /* DATA TRANSFER GROUP */
+
+		// MOV r1,r2 - Move between registers
+        case 0x7F: state->a = state->a; break;
+        case 0x78: state->a = state->b; break;
+        case 0x79: state->a = state->c; break;
+        case 0x7A: state->a = state->d; break;
+        case 0x7B: state->a = state->e; break;
+        case 0x7C: state->a = state->h; break;
+        case 0x7D: state->a = state->l; break;
+        case 0x47: state->b = state->a; break;
+        case 0x40: state->b = state->b; break;
+        case 0x41: state->b = state->c; break;
+        case 0x42: state->b = state->d; break;
+        case 0x43: state->b = state->e; break;
+        case 0x44: state->b = state->h; break;
+        case 0x45: state->b = state->l; break;
+        case 0x4F: state->c = state->a; break;
+        case 0x48: state->c = state->b; break;
+        case 0x49: state->c = state->c; break;
+        case 0x4A: state->c = state->d; break;
+        case 0x4B: state->c = state->e; break;
+        case 0x4C: state->c = state->h; break;
+        case 0x4D: state->c = state->l; break;
+        case 0x57: state->d = state->a; break;
+        case 0x50: state->d = state->b; break;
+        case 0x51: state->d = state->c; break;
+        case 0x52: state->d = state->d; break;
+        case 0x53: state->d = state->e; break;
+        case 0x54: state->d = state->h; break;
+        case 0x55: state->d = state->l; break;
+        case 0x5F: state->e = state->a; break;
+        case 0x58: state->e = state->b; break;
+        case 0x59: state->e = state->c; break;
+        case 0x5A: state->e = state->d; break;
+        case 0x5B: state->e = state->e; break;
+        case 0x5C: state->e = state->h; break;
+        case 0x5D: state->e = state->l; break;
+        case 0x67: state->h = state->a; break;
+        case 0x60: state->h = state->b; break;
+        case 0x61: state->h = state->c; break;
+        case 0x62: state->h = state->d; break;
+        case 0x63: state->h = state->e; break;
+        case 0x64: state->h = state->h; break;
+        case 0x65: state->h = state->l; break;
+        case 0x6F: state->l = state->a; break;
+        case 0x68: state->l = state->b; break;
+        case 0x69: state->l = state->c; break;
+        case 0x6A: state->l = state->d; break;
+        case 0x6B: state->l = state->e; break;
+        case 0x6C: state->l = state->h; break;
+        case 0x6D: state->l = state->l; break;
+
+		// MOV r,M - Move from memory to register
+        case 0x7E: state->a = ReadFromHL(state); break;
+        case 0x46: state->b = ReadFromHL(state); break;
+        case 0x4E: state->c = ReadFromHL(state); break;
+        case 0x56: state->d = ReadFromHL(state); break;
+        case 0x5E: state->e = ReadFromHL(state); break;
+        case 0x66: state->h = ReadFromHL(state); break;
+        case 0x6E: state->l = ReadFromHL(state); break;
+
+		// MOV M,r - Move to memory from register
+        case 0x77: WriteToHL(state, state->a); break;
+        case 0x70: WriteToHL(state, state->b); break;
+        case 0x71: WriteToHL(state, state->c); break;
+        case 0x72: WriteToHL(state, state->d); break;
+        case 0x73: WriteToHL(state, state->e); break;
+        case 0x74: WriteToHL(state, state->h); break;
+        case 0x75: WriteToHL(state, state->l); break;
+
+		// MVI r,data - Move to register immediate
+        case 0x3E:
+			state->a = opcode[1];
+			state->pc++;
+			break;
+        case 0x06:
+			state->b = opcode[1];
+			state->pc++;
+			break;
+        case 0x0E:
+			state->c = opcode[1];
+			state->pc++;
+			break;
+        case 0x16:
+			state->d = opcode[1];
+			state->pc++;
+			break;
+        case 0x1E:
+			state->e = opcode[1];
+			state->pc++;
+			break;
+        case 0x26:
+			state->h = opcode[1];
+			state->pc++;
+			break;
+        case 0x2E:
+			state->l = opcode[1];
+			state->pc++;
+			break;
+		
+		// MVI M,data - Move to memory immediate
+        case 0x36:
+			WriteToHL(state, opcode[1]);
+			state->pc++;
+			break;
+		
+		// LXI rp,data16 - Load register pair immediate
+        case 0x01:
+			state->c = opcode[1];
+			state->b = opcode[2];
+			state->pc += 2;
+			break;
+        case 0x11:
+			state->d = opcode[1];
+			state->e = opcode[2];
+			state->pc += 2;
+			break;
+        case 0x21:
+			state->h = opcode[1];
+			state->l = opcode[2];
+			state->pc += 2;
+			break;
+        case 0x31:
+			state->sp = (opcode[2]<<8) | opcode[1];
+			state->pc += 2;
+			break;
+		
+		// LDA addr - Load accumulator direct
+        case 0x3A:
+			uint16_t offset = (opcode[2]<<8) | (opcode[1]);
+			state->a = state->memory[offset];
+			state->pc+=2;
+			break;
+		
+		// STA addr - Store accumulator direct
+        case 0x32:
+			uint16_t offset = (opcode[2]<<8) | (opcode[1]);
+            WriteMem(state, offset, state->a);
+			state->pc += 2;
+			break;
+		
+		// LHLD addr - Load H and L direct
+        case 0x2A:
+            uint16_t offset = opcode[1] | (opcode[2] << 8);
+            state->l = state->memory[offset];
+            state->h = state->memory[offset+1];
+            state->pc += 2;
+			break;
+		
+		// SHLD addr - Store H and L direct
+        case 0x22:
+            uint16_t offset = opcode[1] | (opcode[2] << 8);
+            WriteMem(state, offset, state->l);
+            WriteMem(state, offset+1, state->h);
+            state->pc += 2;
+			break;
+		
+		// LDAX rp - Load accumulator indirect
+        case 0x0A:
+			uint16_t offset=(state->b<<8) | state->c;
+			state->a = state->memory[offset];
+			break;
+        case 0x1A:
+			uint16_t offset=(state->d<<8) | state->e;
+			state->a = state->memory[offset];
+			break;
+		
+		// LDAX rp - Store accumulator indirect
+        case 0x02:
+            uint16_t offset=(state->b<<8) | state->c;
+            WriteMem(state, offset, state->a);
+			break;
+        case 0x12:
+            uint16_t offset=(state->d<<8) | state->e;
+            WriteMem(state, offset, state->a);
+			break;
+		
+		// XCHG - Exchange H and L with D and E
+        case 0xEB:
+            uint8_t save1 = state->d;
+            uint8_t save2 = state->e;
+            state->d = state->h;
+            state->e = state->l;
+            state->h = save1;
+            state->l = save2;
+			break;
+
+        /* ARITHMETIC GROUP */
+
+		// ADD r - Add register
+        case 0x87:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->a;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x80:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->b;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x81:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->c;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x82:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->d;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x83:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->e;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x84:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->h;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x85:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->l;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// ADD M - Add memory
+        case 0x86:
+			uint16_t res = (uint16_t) state->a + (uint16_t) ReadFromHL(state);
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// ADI data - Add immediate
+        case 0xC6:
+			uint16_t x = (uint16_t) state->a + (uint16_t) opcode[1];
+            FlagsZSP(state, x&0xff);
+			state->cc.cy = (x > 0xff);
+			state->a = x&0xff;
+			state->pc++;
+			break;
+		
+		// ADC r - Add register with carry
+        case 0x8F:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->a + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x88:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->b + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x89:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->c + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x8A:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->d + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x8B:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->e + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x8C:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->h + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x8D:
+			uint16_t res = (uint16_t) state->a + (uint16_t) state->l + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// ADC M - Add memory with carry
+        case 0x8E:
+			uint16_t res = (uint16_t) state->a + (uint16_t) ReadFromHL(state) + state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// ACI data - Add immediate with carry
+        case 0xCE:
+			uint16_t x = state->a + opcode[1] + state->cc.cy;
+            FlagsZSP(state, x&0xff);
+			state->cc.cy = (x > 0xff);
+			state->a = x & 0xff;
+			state->pc++;
+			break;
+		
+		// SUB r - Subtract register
+        case 0x97:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->a;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x90:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->b;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x91:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->c;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x92:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->d;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x93:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->e;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x94:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->h;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x95:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->l;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// SUB M - Subtract memory
+        case 0x96:
+			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL(state);
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// SUI data - Subtract immediate
+        case 0xD6:
+			uint8_t x = state->a - opcode[1];
+            FlagsZSP(state, x&0xff);
+			state->cc.cy = (state->a < opcode[1]);
+			state->a = x;
+			state->pc++;
+			break;
+		
+		// SBB r - Subtract register with borrow
+        case 0x9F:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->a - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x98:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->b - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x99:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->c - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x9A:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->d - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x9B:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->e - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x9C:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->h - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+        case 0x9D:
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->l - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// SBB M - Subtract memory with borrow
+        case 0x9E:
+			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL - state->cc.cy;
+			ArithFlagsA(state, res);
+			state->a=(res&0xff);
+			break;
+		
+		// SBI data - Subtract immediate with borrow
+        case 0xDE:
+			uint16_t x = state->a - opcode[1] - state->cc.cy;
+            FlagsZSP(state, x&0xff);
+			state->cc.cy = (x > 0xff);
+			state->a = x & 0xff;
+			state->pc++;
+			break;
+		
+		// INR r - Increment register
+        case 0x3C:
+            state->a += 1;
+            FlagsZSP(state,state->a);
+			break;
+        case 0x04:
+            state->b += 1;
+            FlagsZSP(state,state->b);
+			break;
+        case 0x0C:
+            state->c += 1;
+            FlagsZSP(state,state->c);
+			break;
+        case 0x14:
+            state->d += 1;
+            FlagsZSP(state,state->d);
+			break;
+        case 0x1C:
+            state->e += 1;
+            FlagsZSP(state,state->e);
+			break;
+        case 0x24:
+            state->h += 1;
+            FlagsZSP(state,state->h);
+			break;
+        case 0x2C:
+            state->l += 1;
+            FlagsZSP(state,state->l);
+			break;
+		
+		// INR M - Increment memory
+        case 0x34:
+			uint8_t res = ReadFromHL(state) + 1;
+            FlagsZSP(state, res);
+            WriteToHL(state, res);
+			break;
+		
+		// DCR r - Decrement register
+        case 0x3D:
+            state->a -= 1;
+            FlagsZSP(state,state->a);
+			break;
+        case 0x05:
+            state->b -= 1;
+            FlagsZSP(state,state->b);
+			break;
+        case 0x0D:
+            state->c -= 1;
+            FlagsZSP(state,state->c);
+			break;
+        case 0x15:
+            state->d -= 1;
+            FlagsZSP(state,state->d);
+			break;
+        case 0x1D:
+            state->e -= 1;
+            FlagsZSP(state,state->e);
+			break;
+        case 0x25:
+            state->h -= 1;
+            FlagsZSP(state,state->h);
+			break;
+        case 0x2D:
+            state->l -= 1;
+            FlagsZSP(state,state->l);
+			break;
+		
+		// DCR M - Decrement memory
+        case 0x35:
+			uint8_t res = ReadFromHL(state) - 1;
+            FlagsZSP(state, res);
+            WriteToHL(state, res);
+			break;
+		
+		// INX rp - Increment register pair
+        case 0x03:
+			state->c++;
+			if (state->c == 0)
+				state->b++;
+			break;
+        case 0x13:
+			state->e++;
+			if (state->e == 0)
+				state->d++;
+			break;
+        case 0x23:
+			state->l++;
+			if (state->l == 0)
+				state->h++;
+			break;
+        case 0x33:
+			state->sp++;
+			break;
+
+		// DCX rp - Decrement register pair	
+        case 0x0B:
+			state->c -= 1;
+			if (state->c==0xff)
+				state->b-=1;
+			break;
+        case 0x1B:
+			state->e -= 1;
+			if (state->e==0xff)
+				state->d-=1;
+			break;
+        case 0x2B:
+			state->l -= 1;
+			if (state->l==0xff)
+				state->h-=1;
+			break;
+        case 0x3B:
+			state->sp--;
+			break;
+		
+		// DAD rp - Add register pair to H and L
+        case 0x09:
+			uint32_t hl = (state->h << 8) | state->l;
+			uint32_t bc = (state->b << 8) | state->c;
+			uint32_t res = hl + bc;
+			state->h = (res & 0xff00) >> 8;
+			state->l = res & 0xff;
+			state->cc.cy = ((res & 0xffff0000) != 0);
+			break;
+        case 0x19:
+			uint32_t hl = (state->h << 8) | state->l;
+			uint32_t de = (state->d << 8) | state->e;
+			uint32_t res = hl + de;
+			state->h = (res & 0xff00) >> 8;
+			state->l = res & 0xff;
+			state->cc.cy = ((res & 0xffff0000) != 0);
+			break;
+        case 0x29:
+			uint32_t hl = (state->h << 8) | state->l;
+			uint32_t res = hl + hl;
+			state->h = (res & 0xff00) >> 8;
+			state->l = res & 0xff;
+			state->cc.cy = ((res & 0xffff0000) != 0);
+			break;
+        case 0x39:
+			uint32_t hl = (state->h << 8) | state->l;
+			uint32_t res = hl + state->sp;
+			state->h = (res & 0xff00) >> 8;
+			state->l = res & 0xff;
+			state->cc.cy = ((res & 0xffff0000) != 0);
+			break;
+
+		// DAA - Decimal adjust accumulator
+        case 0x27:
+            if ((state->a &0xf) > 9)
+                state->a += 6;
+            if ((state->a&0xf0) > 0x90)
+            {
+                uint16_t res = (uint16_t) state->a + 0x60;
+                state->a = res & 0xff;
+                ArithFlagsA(state, res);
+            }
+            break;
+
+        /* LOGICAL GROUP */
+
+        case 0xA7: printf("ANA \tA"); break;
+        case 0xA0: printf("ANA \tB"); break;
+        case 0xA1: printf("ANA \tC"); break;
+        case 0xA2: printf("ANA \tD"); break;
+        case 0xA3: printf("ANA \tE"); break;
+        case 0xA4: printf("ANA \tH"); break;
+        case 0xA5: printf("ANA \tL"); break;
+        case 0xA6: printf("ANA \tM"); break;
+        case 0xE6: printf("ANI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xAF: printf("XRA \tA"); break;
+        case 0xA8: printf("XRA \tB"); break;
+        case 0xA9: printf("XRA \tC"); break;
+        case 0xAA: printf("XRA \tD"); break;
+        case 0xAB: printf("XRA \tE"); break;
+        case 0xAC: printf("XRA \tH"); break;
+        case 0xAD: printf("XRA \tL"); break;
+        case 0xAE: printf("XRA \tM"); break;
+        case 0xEE: printf("XRI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xB7: printf("ORA \tA"); break;
+        case 0xB0: printf("ORA \tB"); break;
+        case 0xB1: printf("ORA \tC"); break;
+        case 0xB2: printf("ORA \tD"); break;
+        case 0xB3: printf("ORA \tE"); break;
+        case 0xB4: printf("ORA \tH"); break;
+        case 0xB5: printf("ORA \tL"); break;
+        case 0xB6: printf("ORA \tM"); break;
+        case 0xF6: printf("ORI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xBF: printf("CMP \tA"); break;
+        case 0xB8: printf("CMP \tB"); break;
+        case 0xB9: printf("CMP \tC"); break;
+        case 0xBA: printf("CMP \tD"); break;
+        case 0xBB: printf("CMP \tE"); break;
+        case 0xBC: printf("CMP \tH"); break;
+        case 0xBD: printf("CMP \tL"); break;
+        case 0xBE: printf("CMP \tM"); break;
+        case 0xFE: printf("CPI \t0x%02X", code[1]); opbytes=2; break;
+        case 0x07: printf("RLC "); break;
+        case 0x0F: printf("RRC "); break;
+        case 0x17: printf("RAL "); break;
+        case 0x1F: printf("RAR "); break;
+        case 0x2F: printf("CMA "); break;
+        case 0x3F: printf("CMC "); break;
+        case 0x37: printf("STC "); break;
+
+        /* BRANCH GROUP */
+
+        case 0xC3: printf("JMP \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xDA: printf("JC  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xD2: printf("JN  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xCA: printf("JZ  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xC2: printf("JNZ \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xF2: printf("JP  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xFA: printf("JM  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xEA: printf("JPE \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xE2: printf("JPO \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xCD: printf("CALL\t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xDC: printf("CC  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xD4: printf("CNC \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xCC: printf("CZ  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xC4: printf("CNZ \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xF4: printf("CP  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xFC: printf("CM  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xEC: printf("CPE \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xE4: printf("CPO \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xC9: printf("RET "); break;
+        case 0xD8: printf("RC  "); break;
+        case 0xD0: printf("RNC "); break;
+        case 0xC8: printf("RZ  "); break;
+        case 0xC0: printf("RNZ "); break;
+        case 0xF0: printf("RP  "); break;
+        case 0xF8: printf("RM  "); break;
+        case 0xE8: printf("RPE "); break;
+        case 0xE0: printf("RPO "); break;
+        case 0xC7: printf("RST \t0"); break;
+        case 0xCF: printf("RST \t1"); break;
+        case 0xD7: printf("RST \t2"); break;
+        case 0xDF: printf("RST \t3"); break;
+        case 0xE7: printf("RST \t4"); break;
+        case 0xEF: printf("RST \t5"); break;
+        case 0xF7: printf("RST \t6"); break;
+        case 0xFF: printf("RST \t7"); break;
+        case 0xE9: printf("PCHL"); break;
+
+        /* STACK, I/O, AND MACHINE CONTROL GROUP */
+
+        case 0xC5: printf("PUSH\tB"); break;
+        case 0xD5: printf("PUSH\tD"); break;
+        case 0xE5: printf("PUSH\tH"); break;
+        case 0xF5: printf("PUSH\tPSW"); break;
+        case 0xC1: printf("POP \tB"); break;
+        case 0xD1: printf("POP \tD"); break;
+        case 0xE1: printf("POP \tH"); break;
+        case 0xF1: printf("POP \tPSW"); break;
+        case 0xE3: printf("XTHL"); break;
+        case 0xF9: printf("SPHL"); break;
+        case 0xDB: printf("IN  \t0x%02X", code[1]); opbytes=2; break;
+        case 0xD3: printf("OUT \t0x%02X", code[1]); opbytes=2; break;
+        case 0xFB: printf("EI  "); break;
+        case 0xF3: printf("DI  "); break;
+        case 0x76: printf("HLT "); break;
+        case 0x00: printf("NOP "); break;
+
+		default: UnimplementedInstruction(state);
+	}
+
+	return cycles8080[*opcode];
+}
+
+
+/*
+	ReadFileIntoMemoryAt:
+	Reads input file into processor memory
+	state: state of registers and memory
+	filename: name of the input file
+	offset: location to read to in memory
+*/
+void ReadFileIntoMemoryAt(State8080* state, char* filename, uint32_t offset)
+{
+	FILE *f= fopen(filename, "rb");
+	if (f==NULL)
+	{
+		printf("error: Couldn't open %s\n", filename);
+		exit(1);
+	}
+	fseek(f, 0L, SEEK_END);
+	int fsize = ftell(f);
+	fseek(f, 0L, SEEK_SET);
+	
+	uint8_t *buffer = &state->memory[offset];
+	fread(buffer, fsize, 1, f);
+	fclose(f);
+}
+
+/*
+	Init8080:
+	Initialize the state of the registers and memory of the processor
+*/
+State8080* Init8080(void)
+{
+	State8080* state = calloc(1, sizeof(State8080));
+	state->memory = malloc(0x10000);  //16K
+	return state;
+}
+
+int main (int argc, char**argv)
+{
+	int done = 0;
+	int vblankcycles = 0;
+	State8080* state = Init8080();
+	
+	ReadFileIntoMemoryAt(state, "invaders.h", 0);
+	ReadFileIntoMemoryAt(state, "invaders.g", 0x800);
+	ReadFileIntoMemoryAt(state, "invaders.f", 0x1000);
+	ReadFileIntoMemoryAt(state, "invaders.e", 0x1800);
+	
+	while (done == 0)
+	{
+		done = Emulate8080Op(state);
+	}
+	
+	return 0;
+}
