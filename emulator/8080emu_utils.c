@@ -115,6 +115,34 @@ void WriteToHL(State8080* state, uint8_t value)
 }
 
 /*
+	Push:
+	Push register pair into memory
+	*state: state of registers and memory
+	high: high bit register
+	low: low bit register
+*/
+void Push(State8080* state, uint8_t high, uint8_t low)
+{
+    WriteMem(state, state->sp-1, high);
+    WriteMem(state, state->sp-2, low);
+    state->sp = state->sp - 2;
+}
+
+/*
+	Pop:
+	Pop topmost two bytes from the stack into the specified register pair
+	*state: state of registers and memory
+	*high: location of high bit register
+	*low: location of low bit register
+*/
+void Pop(State8080* state, uint8_t *high, uint8_t *low)
+{
+    *low = state->memory[state->sp];
+    *high = state->memory[state->sp+1];
+    state->sp += 2;
+}
+
+/*
     FlagsZSP:
     Update Zero, Sign and Parity flags upon adding immediate
     state: state of registers and memory

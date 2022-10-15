@@ -45,6 +45,8 @@ void UnimplementedInstruction(State8080* state);
 void WriteMem(State8080* state, uint16_t address, uint8_t value);
 uint8_t ReadFromHL(State8080* state);
 void WriteToHL(State8080* state, uint8_t value);
+void Push(State8080* state, uint8_t high, uint8_t low);
+void Pop(State8080* state, uint8_t *high, uint8_t *low);
 void FlagsZSP(State8080 *state, uint8_t value);
 void ReadFileIntoMemoryAt(State8080* state, char* filename, uint32_t offset);
 State8080* Init8080(void);
