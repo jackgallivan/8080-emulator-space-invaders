@@ -2,9 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <sys/time.h>
 
-// Some code cares that these flags are in exact 
+// Some code cares that these flags are in exact
 // right bits when.  For instance, some code
 // "pops" values into the PSW that they didn't push.
 //
