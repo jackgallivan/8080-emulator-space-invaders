@@ -1,137 +1,5 @@
 #include "8080emulator.h"
 
-/*
-    parity:
-    Sets parity flag when the input has an even parity and unsets it it has an odd parity
-    x: integer value
-    size: the size of the math instruction, in bits
-    return: the value of the parity flag: 0 if set, 1 if unset
-*/
-static int parity(int x, int size)
-{
-	int i;
-	int p = 0;
-	x = (x & ((1<<size)-1));
-	for (i=0; i<size; i++)
-	{
-		if (x & 0x1) p++;
-		x = x >> 1;
-	}
-	return (0 == (p & 0x1));
-}
-
-// Number of cycles per instruction
-// Referenced from Intel 8080 CPU User Manual
-unsigned char cycles8080[] = {
-	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x00..0x0f
-	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x10..0x1f
-	4, 10, 16, 5, 5, 5, 7, 4, 4, 10, 16, 5, 5, 5, 7, 4, //etc
-	4, 10, 13, 5, 10, 10, 10, 4, 4, 10, 13, 5, 5, 5, 7, 4,
-	
-	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5, //0x40..0x4f
-	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
-	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
-	7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 5,
-	
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4, //0x80..8x4f
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
-	
-	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11, //0xc0..0xcf
-	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11, 
-	11, 10, 10, 18, 17, 11, 7, 11, 11, 5, 10, 5, 17, 17, 7, 11, 
-	11, 10, 10, 4, 17, 11, 7, 11, 11, 5, 10, 4, 17, 17, 7, 11, 
-};
-
-/*
-    ArithFlagsA:
-    Update Zero, Sign and Parity flags upon updating A register using
-	addition and subtraction instructions
-    state: state of registers and memory
-	res: result of arithmetic operation
-*/
-static void ArithFlagsA(State8080 *state, uint16_t res)
-{
-	state->cc.cy = (res > 0xff);
-	state->cc.z = ((res&0xff) == 0);
-	state->cc.s = (0x80 == (res & 0x80));
-	state->cc.p = parity(res&0xff, 8);
-}
-
-/*
-    UnimplementedInstruction:
-    Generates error when an unimplemented instruction is found
-    state: state of registers and memory
-*/
-void UnimplementedInstruction(State8080* state)
-{
-	//pc will have advanced one, so undo that
-	printf ("Error: Unimplemented instruction\n");
-	state->pc--;
-	exit(1);
-}
-
-/*
-    WriteMem:
-    Stores input value directly in specified memory location
-    state: state of registers and memory
-	address: direct location in memory
-	value: value to store in memory
-*/
-static void WriteMem(State8080* state, uint16_t address, uint8_t value)
-{
-    if (address >= 0x2000 && address < 0x4000)
-	{
-        state->memory[address] = value;
-	}
-	else
-	{
-		return;
-	}
-}
-
-/*
-    ReadFromHL:
-    Read value from memory
-    state: state of registers and memory
-*/
-static uint8_t ReadFromHL(State8080* state)
-{
-    uint16_t offset = (state->h << 8) | state->l;
-    return state->memory[offset];
-}
-
-/*
-    WriteFromHL:
-    Write input value from memory
-    state: state of registers and memory
-	value: input value to write to memory
-*/
-static void WriteToHL(State8080* state, uint8_t value)
-{
-    uint16_t offset = (state->h << 8) | state->l;
-    WriteMem(state, offset, value);
-}
-
-/*
-    FlagsZSP:
-    Update Zero, Sign and Parity flags upon adding immediate
-    state: state of registers and memory
-	value: ...
-*/
-static void FlagsZSP(State8080 *state, uint8_t value)
-{
-    state->cc.z = (value == 0);
-    state->cc.s = (0x80 == (value & 0x80));
-    state->cc.p = parity(value, 8);    
-}
-
-/*
-    Emulate8080Op:
-    Emulate instructions of an 8080 processor using corresponding opcodes
-    state: state of registers and memory
-*/
 int Emulate8080Op(State8080* state)
 {
 	int cycles = 4;
@@ -240,13 +108,13 @@ int Emulate8080Op(State8080* state)
 			state->l = opcode[1];
 			state->pc++;
 			break;
-		
+
 		// MVI M,data - Move to memory immediate
         case 0x36:
 			WriteToHL(state, opcode[1]);
 			state->pc++;
 			break;
-		
+
 		// LXI rp,data16 - Load register pair immediate
         case 0x01:
 			state->c = opcode[1];
@@ -267,21 +135,21 @@ int Emulate8080Op(State8080* state)
 			state->sp = (opcode[2]<<8) | opcode[1];
 			state->pc += 2;
 			break;
-		
+
 		// LDA addr - Load accumulator direct
         case 0x3A:
 			uint16_t offset = (opcode[2]<<8) | (opcode[1]);
 			state->a = state->memory[offset];
 			state->pc+=2;
 			break;
-		
+
 		// STA addr - Store accumulator direct
         case 0x32:
 			uint16_t offset = (opcode[2]<<8) | (opcode[1]);
             WriteMem(state, offset, state->a);
 			state->pc += 2;
 			break;
-		
+
 		// LHLD addr - Load H and L direct
         case 0x2A:
             uint16_t offset = opcode[1] | (opcode[2] << 8);
@@ -289,7 +157,7 @@ int Emulate8080Op(State8080* state)
             state->h = state->memory[offset+1];
             state->pc += 2;
 			break;
-		
+
 		// SHLD addr - Store H and L direct
         case 0x22:
             uint16_t offset = opcode[1] | (opcode[2] << 8);
@@ -297,7 +165,7 @@ int Emulate8080Op(State8080* state)
             WriteMem(state, offset+1, state->h);
             state->pc += 2;
 			break;
-		
+
 		// LDAX rp - Load accumulator indirect
         case 0x0A:
 			uint16_t offset=(state->b<<8) | state->c;
@@ -307,7 +175,7 @@ int Emulate8080Op(State8080* state)
 			uint16_t offset=(state->d<<8) | state->e;
 			state->a = state->memory[offset];
 			break;
-		
+
 		// LDAX rp - Store accumulator indirect
         case 0x02:
             uint16_t offset=(state->b<<8) | state->c;
@@ -317,7 +185,7 @@ int Emulate8080Op(State8080* state)
             uint16_t offset=(state->d<<8) | state->e;
             WriteMem(state, offset, state->a);
 			break;
-		
+
 		// XCHG - Exchange H and L with D and E
         case 0xEB:
             uint8_t save1 = state->d;
@@ -366,14 +234,14 @@ int Emulate8080Op(State8080* state)
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// ADD M - Add memory
         case 0x86:
 			uint16_t res = (uint16_t) state->a + (uint16_t) ReadFromHL(state);
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// ADI data - Add immediate
         case 0xC6:
 			uint16_t x = (uint16_t) state->a + (uint16_t) opcode[1];
@@ -382,7 +250,7 @@ int Emulate8080Op(State8080* state)
 			state->a = x&0xff;
 			state->pc++;
 			break;
-		
+
 		// ADC r - Add register with carry
         case 0x8F:
 			uint16_t res = (uint16_t) state->a + (uint16_t) state->a + state->cc.cy;
@@ -419,14 +287,14 @@ int Emulate8080Op(State8080* state)
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// ADC M - Add memory with carry
         case 0x8E:
 			uint16_t res = (uint16_t) state->a + (uint16_t) ReadFromHL(state) + state->cc.cy;
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// ACI data - Add immediate with carry
         case 0xCE:
 			uint16_t x = state->a + opcode[1] + state->cc.cy;
@@ -435,7 +303,7 @@ int Emulate8080Op(State8080* state)
 			state->a = x & 0xff;
 			state->pc++;
 			break;
-		
+
 		// SUB r - Subtract register
         case 0x97:
 			uint16_t res = (uint16_t) state->a - (uint16_t) state->a;
@@ -472,14 +340,14 @@ int Emulate8080Op(State8080* state)
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// SUB M - Subtract memory
         case 0x96:
 			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL(state);
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// SUI data - Subtract immediate
         case 0xD6:
 			uint8_t x = state->a - opcode[1];
@@ -488,7 +356,7 @@ int Emulate8080Op(State8080* state)
 			state->a = x;
 			state->pc++;
 			break;
-		
+
 		// SBB r - Subtract register with borrow
         case 0x9F:
 			uint16_t res = (uint16_t) state->a - (uint16_t) state->a - state->cc.cy;
@@ -525,14 +393,14 @@ int Emulate8080Op(State8080* state)
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// SBB M - Subtract memory with borrow
         case 0x9E:
 			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL - state->cc.cy;
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
-		
+
 		// SBI data - Subtract immediate with borrow
         case 0xDE:
 			uint16_t x = state->a - opcode[1] - state->cc.cy;
@@ -541,7 +409,7 @@ int Emulate8080Op(State8080* state)
 			state->a = x & 0xff;
 			state->pc++;
 			break;
-		
+
 		// INR r - Increment register
         case 0x3C:
             state->a += 1;
@@ -571,14 +439,14 @@ int Emulate8080Op(State8080* state)
             state->l += 1;
             FlagsZSP(state,state->l);
 			break;
-		
+
 		// INR M - Increment memory
         case 0x34:
 			uint8_t res = ReadFromHL(state) + 1;
             FlagsZSP(state, res);
             WriteToHL(state, res);
 			break;
-		
+
 		// DCR r - Decrement register
         case 0x3D:
             state->a -= 1;
@@ -608,14 +476,14 @@ int Emulate8080Op(State8080* state)
             state->l -= 1;
             FlagsZSP(state,state->l);
 			break;
-		
+
 		// DCR M - Decrement memory
         case 0x35:
 			uint8_t res = ReadFromHL(state) - 1;
             FlagsZSP(state, res);
             WriteToHL(state, res);
 			break;
-		
+
 		// INX rp - Increment register pair
         case 0x03:
 			state->c++;
@@ -636,7 +504,7 @@ int Emulate8080Op(State8080* state)
 			state->sp++;
 			break;
 
-		// DCX rp - Decrement register pair	
+		// DCX rp - Decrement register pair
         case 0x0B:
 			state->c -= 1;
 			if (state->c==0xff)
@@ -655,7 +523,7 @@ int Emulate8080Op(State8080* state)
         case 0x3B:
 			state->sp--;
 			break;
-		
+
 		// DAD rp - Add register pair to H and L
         case 0x09:
 			uint32_t hl = (state->h << 8) | state->l;
@@ -710,7 +578,7 @@ int Emulate8080Op(State8080* state)
         case 0xA4: printf("ANA \tH"); break;
         case 0xA5: printf("ANA \tL"); break;
         case 0xA6: printf("ANA \tM"); break;
-        case 0xE6: printf("ANI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xE6: printf("ANI \t0x%02X", opcode[1]); break;
         case 0xAF: printf("XRA \tA"); break;
         case 0xA8: printf("XRA \tB"); break;
         case 0xA9: printf("XRA \tC"); break;
@@ -719,7 +587,7 @@ int Emulate8080Op(State8080* state)
         case 0xAC: printf("XRA \tH"); break;
         case 0xAD: printf("XRA \tL"); break;
         case 0xAE: printf("XRA \tM"); break;
-        case 0xEE: printf("XRI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xEE: printf("XRI \t0x%02X", opcode[1]); break;
         case 0xB7: printf("ORA \tA"); break;
         case 0xB0: printf("ORA \tB"); break;
         case 0xB1: printf("ORA \tC"); break;
@@ -728,7 +596,7 @@ int Emulate8080Op(State8080* state)
         case 0xB4: printf("ORA \tH"); break;
         case 0xB5: printf("ORA \tL"); break;
         case 0xB6: printf("ORA \tM"); break;
-        case 0xF6: printf("ORI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xF6: printf("ORI \t0x%02X", opcode[1]); break;
         case 0xBF: printf("CMP \tA"); break;
         case 0xB8: printf("CMP \tB"); break;
         case 0xB9: printf("CMP \tC"); break;
@@ -737,7 +605,7 @@ int Emulate8080Op(State8080* state)
         case 0xBC: printf("CMP \tH"); break;
         case 0xBD: printf("CMP \tL"); break;
         case 0xBE: printf("CMP \tM"); break;
-        case 0xFE: printf("CPI \t0x%02X", code[1]); opbytes=2; break;
+        case 0xFE: printf("CPI \t0x%02X", opcode[1]); break;
         case 0x07: printf("RLC "); break;
         case 0x0F: printf("RRC "); break;
         case 0x17: printf("RAL "); break;
@@ -748,24 +616,24 @@ int Emulate8080Op(State8080* state)
 
         /* BRANCH GROUP */
 
-        case 0xC3: printf("JMP \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xDA: printf("JC  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xD2: printf("JN  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xCA: printf("JZ  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xC2: printf("JNZ \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xF2: printf("JP  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xFA: printf("JM  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xEA: printf("JPE \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xE2: printf("JPO \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xCD: printf("CALL\t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xDC: printf("CC  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xD4: printf("CNC \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xCC: printf("CZ  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xC4: printf("CNZ \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xF4: printf("CP  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xFC: printf("CM  \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xEC: printf("CPE \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
-        case 0xE4: printf("CPO \t0x%02X%02X", code[2], code[1]); opbytes=3; break;
+        case 0xC3: printf("JMP \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xDA: printf("JC  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xD2: printf("JN  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xCA: printf("JZ  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xC2: printf("JNZ \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xF2: printf("JP  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xFA: printf("JM  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xEA: printf("JPE \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xE2: printf("JPO \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xCD: printf("CALL\t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xDC: printf("CC  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xD4: printf("CNC \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xCC: printf("CZ  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xC4: printf("CNZ \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xF4: printf("CP  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xFC: printf("CM  \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xEC: printf("CPE \t0x%02X%02X", opcode[2], opcode[1]); break;
+        case 0xE4: printf("CPO \t0x%02X%02X", opcode[2], opcode[1]); break;
         case 0xC9: printf("RET "); break;
         case 0xD8: printf("RC  "); break;
         case 0xD0: printf("RNC "); break;
@@ -797,8 +665,8 @@ int Emulate8080Op(State8080* state)
         case 0xF1: printf("POP \tPSW"); break;
         case 0xE3: printf("XTHL"); break;
         case 0xF9: printf("SPHL"); break;
-        case 0xDB: printf("IN  \t0x%02X", code[1]); opbytes=2; break;
-        case 0xD3: printf("OUT \t0x%02X", code[1]); opbytes=2; break;
+        case 0xDB: printf("IN  \t0x%02X", opcode[1]); break;
+        case 0xD3: printf("OUT \t0x%02X", opcode[1]); break;
         case 0xFB: printf("EI  "); break;
         case 0xF3: printf("DI  "); break;
         case 0x76: printf("HLT "); break;
@@ -810,57 +678,21 @@ int Emulate8080Op(State8080* state)
 	return cycles8080[*opcode];
 }
 
-
-/*
-	ReadFileIntoMemoryAt:
-	Reads input file into processor memory
-	state: state of registers and memory
-	filename: name of the input file
-	offset: location to read to in memory
-*/
-void ReadFileIntoMemoryAt(State8080* state, char* filename, uint32_t offset)
-{
-	FILE *f= fopen(filename, "rb");
-	if (f==NULL)
-	{
-		printf("error: Couldn't open %s\n", filename);
-		exit(1);
-	}
-	fseek(f, 0L, SEEK_END);
-	int fsize = ftell(f);
-	fseek(f, 0L, SEEK_SET);
-	
-	uint8_t *buffer = &state->memory[offset];
-	fread(buffer, fsize, 1, f);
-	fclose(f);
-}
-
-/*
-	Init8080:
-	Initialize the state of the registers and memory of the processor
-*/
-State8080* Init8080(void)
-{
-	State8080* state = calloc(1, sizeof(State8080));
-	state->memory = malloc(0x10000);  //16K
-	return state;
-}
-
 int main (int argc, char**argv)
 {
 	int done = 0;
 	int vblankcycles = 0;
 	State8080* state = Init8080();
-	
+
 	ReadFileIntoMemoryAt(state, "invaders.h", 0);
 	ReadFileIntoMemoryAt(state, "invaders.g", 0x800);
 	ReadFileIntoMemoryAt(state, "invaders.f", 0x1000);
 	ReadFileIntoMemoryAt(state, "invaders.e", 0x1800);
-	
+
 	while (done == 0)
 	{
 		done = Emulate8080Op(state);
 	}
-	
+
 	return 0;
 }
