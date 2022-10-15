@@ -655,14 +655,37 @@ int Emulate8080Op(State8080* state)
 
         /* STACK, I/O, AND MACHINE CONTROL GROUP */
 
-        case 0xC5: printf("PUSH\tB"); break;
-        case 0xD5: printf("PUSH\tD"); break;
-        case 0xE5: printf("PUSH\tH"); break;
-        case 0xF5: printf("PUSH\tPSW"); break;
-        case 0xC1: printf("POP \tB"); break;
-        case 0xD1: printf("POP \tD"); break;
-        case 0xE1: printf("POP \tH"); break;
-        case 0xF1: printf("POP \tPSW"); break;
+		// PUSH rp - Push register pair to stack
+        case 0xC5:
+            Push(state, state->b, state->c);
+			break;
+        case 0xD5:
+            Push(state, state->d, state->e);
+			break;
+        case 0xE5:
+            Push(state, state->h, state->l);
+			break;
+		
+		// PUSH PSW - Push processor status word
+        case 0xF5:
+            Push(state, state->a, *(unsigned char*)&state->cc);
+			break;
+		
+		// POP rp - Pop top 2 bytes of stack to register pair
+        case 0xC1:
+            Pop(state, &state->b, &state->c);
+			break;
+        case 0xD1:
+            Pop(state, &state->d, &state->e);
+			break;
+        case 0xE1:
+            Pop(state, &state->h, &state->l);
+			break;
+		
+		// POP PSW - Pop processor status word
+        case 0xF1:
+            Pop(state, &state->a,(unsigned char*) &state->cc);
+			break;
         case 0xE3: printf("XTHL"); break;
         case 0xF9: printf("SPHL"); break;
         case 0xDB: printf("IN  \t0x%02X", opcode[1]); break;
@@ -670,7 +693,8 @@ int Emulate8080Op(State8080* state)
         case 0xFB: printf("EI  "); break;
         case 0xF3: printf("DI  "); break;
         case 0x76: printf("HLT "); break;
-        case 0x00: printf("NOP "); break;
+        case 0x00:
+			break;
 
 		default: UnimplementedInstruction(state);
 	}
