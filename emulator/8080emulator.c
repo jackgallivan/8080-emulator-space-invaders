@@ -686,13 +686,49 @@ int Emulate8080Op(State8080* state)
         case 0xF1:
             Pop(state, &state->a,(unsigned char*) &state->cc);
 			break;
-        case 0xE3: printf("XTHL"); break;
-        case 0xF9: printf("SPHL"); break;
-        case 0xDB: printf("IN  \t0x%02X", opcode[1]); break;
-        case 0xD3: printf("OUT \t0x%02X", opcode[1]); break;
-        case 0xFB: printf("EI  "); break;
-        case 0xF3: printf("DI  "); break;
-        case 0x76: printf("HLT "); break;
+		
+		// XTHL - Exchange data at the top of the stack with data in the HL register pair
+        case 0xE3:
+            uint8_t h = state->h;
+            uint8_t l = state->l;
+            state->l = state->memory[state->sp];
+            state->h = state->memory[state->sp+1]; 
+            WriteMem(state, state->sp, l );
+            WriteMem(state, state->sp+1, h );
+			break;
+		
+		// SPHL - Moves the HL register pair to SP
+        case 0xF9:
+			state->sp = state->l | (state->h << 8);
+			break;
+		
+		// IN port - Handles input from external hardware
+		// not yet implemented
+        case 0xDB:
+			state->pc++;
+			break;
+
+		// OUT port - Handles output to external hardware
+		// not yet implemented
+        case 0xD3:
+			state->pc++;
+			break;
+		
+		// EI - Enable interrupts
+        case 0xFB:
+			state->int_enable = 1;
+			break;
+		
+		// DI - Disable interrupts
+        case 0xF3:
+			state->int_enable = 0;
+			break;
+		
+		// HLT - Halt (terminate program)
+        case 0x76:
+			exit(0);
+		
+		// NOP - No operation
         case 0x00:
 			break;
 
