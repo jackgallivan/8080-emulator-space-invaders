@@ -156,12 +156,6 @@ void FlagsZSP(State8080 *state, uint8_t value)
 }
 
 /*
-    Emulate8080Op:
-    Emulate instructions of an 8080 processor using corresponding opcodes
-    state: state of registers and memory
-*/
-
-/*
 	ReadFileIntoMemoryAt:
 	Reads input file into processor memory
 	state: state of registers and memory
