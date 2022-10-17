@@ -1,0 +1,37 @@
+name: C Compiler Error-Check
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ "disassembler/**", "emulator/**" ]
+  pull_request:
+    branches: [ "main" ]
+    paths: [ "disassembler/**", "emulator/**" ]
+
+defaults:
+  run:
+    shell: pwsh
+    working-directory: build
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          disassembler:
+            - "disassembler/**"
+          emulator:
+            - "emulator/**"
+
+    - name: make disassembler
+      if: steps.changes.outputs.disassembler == 'true'
+      run: make disassembler
+    - name: make 8080emulator
+      if: steps.changes.outputs.emulator == 'true'
+      run: make 8080emulator
