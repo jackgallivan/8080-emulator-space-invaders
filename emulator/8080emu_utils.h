@@ -37,7 +37,7 @@ typedef struct State8080 {
 
 } State8080;
 
-unsigned char cycles8080[256];
+extern unsigned char cycles8080[];
 
 int parity(int x, int size);
 void LogicFlagsA(State8080 *state);
