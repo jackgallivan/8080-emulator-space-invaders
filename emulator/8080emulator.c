@@ -2,7 +2,7 @@
 
 int Emulate8080Op(State8080* state)
 {
-	int cycles = 4;
+	// int cycles = 4; // TODO: unused var
 	unsigned char *opcode = &state->memory[state->pc];
 
 	uint8_t data8, reg_1, reg_2;
@@ -914,7 +914,7 @@ int Emulate8080Op(State8080* state)
 int main (int argc, char**argv)
 {
 	int done = 0;
-	int vblankcycles = 0;
+	// int vblankcycles = 0; // TODO: unused var
 	State8080* state = Init8080();
 
 	ReadFileIntoMemoryAt(state, "invaders.h", 0);
