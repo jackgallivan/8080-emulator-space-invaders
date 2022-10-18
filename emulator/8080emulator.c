@@ -396,7 +396,7 @@ int Emulate8080Op(State8080* state)
 
 		// SBB M - Subtract memory with borrow
         case 0x9E:
-			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL - state->cc.cy;
+			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL(state) - state->cc.cy;
 			ArithFlagsA(state, res);
 			state->a=(res&0xff);
 			break;
@@ -570,49 +570,218 @@ int Emulate8080Op(State8080* state)
 
         /* LOGICAL GROUP */
 
-        case 0xA7: printf("ANA \tA"); break;
-        case 0xA0: printf("ANA \tB"); break;
-        case 0xA1: printf("ANA \tC"); break;
-        case 0xA2: printf("ANA \tD"); break;
-        case 0xA3: printf("ANA \tE"); break;
-        case 0xA4: printf("ANA \tH"); break;
-        case 0xA5: printf("ANA \tL"); break;
-        case 0xA6: printf("ANA \tM"); break;
-        case 0xE6: printf("ANI \t0x%02X", opcode[1]); break;
-        case 0xAF: printf("XRA \tA"); break;
-        case 0xA8: printf("XRA \tB"); break;
-        case 0xA9: printf("XRA \tC"); break;
-        case 0xAA: printf("XRA \tD"); break;
-        case 0xAB: printf("XRA \tE"); break;
-        case 0xAC: printf("XRA \tH"); break;
-        case 0xAD: printf("XRA \tL"); break;
-        case 0xAE: printf("XRA \tM"); break;
-        case 0xEE: printf("XRI \t0x%02X", opcode[1]); break;
-        case 0xB7: printf("ORA \tA"); break;
-        case 0xB0: printf("ORA \tB"); break;
-        case 0xB1: printf("ORA \tC"); break;
-        case 0xB2: printf("ORA \tD"); break;
-        case 0xB3: printf("ORA \tE"); break;
-        case 0xB4: printf("ORA \tH"); break;
-        case 0xB5: printf("ORA \tL"); break;
-        case 0xB6: printf("ORA \tM"); break;
-        case 0xF6: printf("ORI \t0x%02X", opcode[1]); break;
-        case 0xBF: printf("CMP \tA"); break;
-        case 0xB8: printf("CMP \tB"); break;
-        case 0xB9: printf("CMP \tC"); break;
-        case 0xBA: printf("CMP \tD"); break;
-        case 0xBB: printf("CMP \tE"); break;
-        case 0xBC: printf("CMP \tH"); break;
-        case 0xBD: printf("CMP \tL"); break;
-        case 0xBE: printf("CMP \tM"); break;
-        case 0xFE: printf("CPI \t0x%02X", opcode[1]); break;
-        case 0x07: printf("RLC "); break;
-        case 0x0F: printf("RRC "); break;
-        case 0x17: printf("RAL "); break;
-        case 0x1F: printf("RAR "); break;
-        case 0x2F: printf("CMA "); break;
-        case 0x3F: printf("CMC "); break;
-        case 0x37: printf("STC "); break;
+		// ANA r - AND register
+        case 0xA7:								// ANA A
+			state->a = (state->a & state->a);
+            LogicFlagsA(state);
+			break;
+		case 0xA0:								// ANA B
+			state->a = (state->a & state->b);
+            LogicFlagsA(state);
+			break;
+		case 0xA1:								// ANA C
+			state->a = (state->a & state->c);
+            LogicFlagsA(state);
+			break;
+		case 0xA2:								// ANA D
+			state->a = (state->a & state->d);
+            LogicFlagsA(state);
+			break;
+		case 0xA3:								// ANA E
+			state->a = (state->a & state->e);
+            LogicFlagsA(state);
+			break;
+		case 0xA4:								// ANA H
+			state->a = (state->a & state->h);
+            LogicFlagsA(state);
+			break;
+		case 0xA5:								// ANA L
+			state->a = (state->a & state->l);
+            LogicFlagsA(state);
+			break;
+
+		// ANA M - AND memory
+		case 0xA6:								// ANA M
+			state->a = (state->a & ReadFromHL(state));
+            LogicFlagsA(state);
+			break;
+
+		// ANI data - AND immediate
+		case 0xE6:								// ANI data
+			state->a = (state->a & opcode[1]);
+            LogicFlagsA(state);
+			state->pc++;
+			break;
+
+		// XRA r - Exclusive OR register
+		case 0xAF:								// XRA A
+			state->a = (state->a ^ state->a);
+            LogicFlagsA(state);
+			break;
+		case 0xA8:								// XRA B
+			state->a = (state->a ^ state->b);
+            LogicFlagsA(state);
+			break;
+		case 0xA9:								// XRA C
+			state->a = (state->a ^ state->c);
+            LogicFlagsA(state);
+			break;
+		case 0xAA:								// XRA D
+			state->a = (state->a ^ state->d);
+            LogicFlagsA(state);
+			break;
+		case 0xAB:								// XRA E
+			state->a = (state->a ^ state->e);
+            LogicFlagsA(state);
+			break;
+		case 0xAC:								// XRA H
+			state->a = (state->a ^ state->h);
+            LogicFlagsA(state);
+			break;
+		case 0xAD:								// XRA L
+			state->a = (state->a ^ state->l);
+            LogicFlagsA(state);
+			break;
+
+		// XRA M - Exclusive OR memory
+		case 0xAE:								// XRA M
+			state->a = (state->a ^ ReadFromHL(state));
+            LogicFlagsA(state);
+			break;
+
+		// XRI data - Exclusive OR immediate
+		case 0xEE:								// XRI data
+			state->a = (state->a ^ opcode[1]);
+            LogicFlagsA(state);
+			state->pc++;
+			break;
+
+		// ORA r - OR register
+		case 0xB7:								// ORA A
+			state->a = (state->a | state->a);
+            LogicFlagsA(state);
+			break;
+		case 0xB0:								// ORA B
+			state->a = (state->a | state->b);
+            LogicFlagsA(state);
+			break;
+		case 0xB1:								// ORA C
+			state->a = (state->a | state->c);
+            LogicFlagsA(state);
+			break;
+		case 0xB2:								// ORA D
+			state->a = (state->a | state->d);
+            LogicFlagsA(state);
+			break;
+		case 0xB3:								// ORA E
+			state->a = (state->a | state->e);
+            LogicFlagsA(state);
+			break;
+		case 0xB4:								// ORA H
+			state->a = (state->a | state->h);
+            LogicFlagsA(state);
+			break;
+		case 0xB5:								// ORA L
+			state->a = (state->a | state->l);
+            LogicFlagsA(state);
+			break;
+
+		// ORA M - OR memory
+        case 0xB6:								// ORA M
+			state->a = (state->a | ReadFromHL(state));
+            LogicFlagsA(state);
+			break;
+
+		// ORI data - OR immediate
+        case 0xF6:								// ORI data
+			state->a = (state->a | opcode[1]);
+            LogicFlagsA(state);
+			state->pc++;
+			break;
+
+		// CMP r - Compare register
+        case 0xBF:								// CMP A
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->a;
+            ArithFlagsA(state, res);
+			break;
+        case 0xB8:								// CMP B
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->b;
+            ArithFlagsA(state, res);
+			break;
+        case 0xB9:								// CMP C
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->c;
+            ArithFlagsA(state, res);
+			break;
+        case 0xBA:								// CMP D
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->d;
+            ArithFlagsA(state, res);
+			break;
+        case 0xBB:								// CMP E
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->e;
+            ArithFlagsA(state, res);
+			break;
+        case 0xBC:								// CMP H
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->h;
+            ArithFlagsA(state, res);
+			break;
+        case 0xBD:								// CMP L
+			uint16_t res = (uint16_t) state->a - (uint16_t) state->l;
+            ArithFlagsA(state, res);
+			break;
+
+		// CMP M - Compare memory
+        case 0xBE:								// CMP M
+			uint16_t res = (uint16_t) state->a - (uint16_t) ReadFromHL(state);
+            ArithFlagsA(state, res);
+			break;
+
+		// CPI data - Compare immediate
+        case 0xFE:								// CPI data
+			uint16_t res = (uint16_t) state->a - (uint16_t) opcode[1];
+            ArithFlagsA(state, res);
+			state->pc++;
+			break;
+
+		// RLC - Rotate left
+        case 0x07:								// RLC
+			uint8_t x = state->cc.cy = state->a >> 7;
+			state->a = (state->a << 1) | x;
+			break;
+
+		// RRC - Rotate right
+        case 0x0F:								// RRC
+			uint8_t x = state->cc.cy = state->a & 0x01;
+			state->a = (state->a >> 1) | (x << 7);
+			break;
+
+		// RAL - Rotate left through carry
+        case 0x17:								// RAL
+			uint8_t x = state->a >> 7;
+			state->a = (state->a << 1) | state->cc.cy;
+			state->cc.cy = x;
+			break;
+
+		// RAR - Rotate right through carry
+        case 0x1F:								// RAR
+			uint8_t x = state->a & 0x01;
+			state->a = (state->a << 1) | (state->cc.cy << 7);
+			state->cc.cy = x;
+			break;
+
+		// CMA - Complement accumulator
+        case 0x2F:								// CMA
+			state->a = ~state->a;
+			break;
+
+		// CMC - Complement carry
+        case 0x3F:								// CMC
+			state->cc.cy = ~state->cc.cy;
+			break;
+
+		// STC - Set carry
+        case 0x37:								// STC
+			state->cc.cy = 0x01;
+			break;
 
         /* BRANCH GROUP */
 
@@ -665,12 +834,12 @@ int Emulate8080Op(State8080* state)
         case 0xE5:
             Push(state, state->h, state->l);
 			break;
-		
+
 		// PUSH PSW - Push processor status word
         case 0xF5:
             Push(state, state->a, *(unsigned char*)&state->cc);
 			break;
-		
+
 		// POP rp - Pop top 2 bytes of stack to register pair
         case 0xC1:
             Pop(state, &state->b, &state->c);
@@ -681,27 +850,27 @@ int Emulate8080Op(State8080* state)
         case 0xE1:
             Pop(state, &state->h, &state->l);
 			break;
-		
+
 		// POP PSW - Pop processor status word
         case 0xF1:
             Pop(state, &state->a,(unsigned char*) &state->cc);
 			break;
-		
+
 		// XTHL - Exchange data at the top of the stack with data in the HL register pair
         case 0xE3:
             uint8_t h = state->h;
             uint8_t l = state->l;
             state->l = state->memory[state->sp];
-            state->h = state->memory[state->sp+1]; 
+            state->h = state->memory[state->sp+1];
             WriteMem(state, state->sp, l );
             WriteMem(state, state->sp+1, h );
 			break;
-		
+
 		// SPHL - Moves the HL register pair to SP
         case 0xF9:
 			state->sp = state->l | (state->h << 8);
 			break;
-		
+
 		// IN port - Handles input from external hardware
 		// not yet implemented
         case 0xDB:
@@ -713,21 +882,21 @@ int Emulate8080Op(State8080* state)
         case 0xD3:
 			state->pc++;
 			break;
-		
+
 		// EI - Enable interrupts
         case 0xFB:
 			state->int_enable = 1;
 			break;
-		
+
 		// DI - Disable interrupts
         case 0xF3:
 			state->int_enable = 0;
 			break;
-		
+
 		// HLT - Halt (terminate program)
         case 0x76:
 			exit(0);
-		
+
 		// NOP - No operation
         case 0x00:
 			break;

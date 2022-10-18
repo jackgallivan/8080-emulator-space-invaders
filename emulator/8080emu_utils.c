@@ -45,6 +45,20 @@ int parity(int x, int size)
 }
 
 /*
+	LogicFlagsA:
+	Update Zero, Sign, Parity, Carry and Auxiliary Carry flags upon using
+	logical instructions
+	state: state of registers and memory
+*/
+void LogicFlagsA(State8080 *state)
+{
+	state->cc.cy = state->cc.ac = 0;
+	state->cc.z = (state->a == 0);
+	state->cc.s = (0x80 == (state->a & 0x80));
+	state->cc.p = parity(state->a, 8);
+}
+
+/*
     ArithFlagsA:
     Update Zero, Sign and Parity flags upon updating A register using
 	addition and subtraction instructions
