@@ -789,42 +789,251 @@ int Emulate8080Op(State8080* state)
 
         /* BRANCH GROUP */
 
-        case 0xC3: printf("JMP \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xDA: printf("JC  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xD2: printf("JN  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xCA: printf("JZ  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xC2: printf("JNZ \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xF2: printf("JP  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xFA: printf("JM  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xEA: printf("JPE \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xE2: printf("JPO \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xCD: printf("CALL\t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xDC: printf("CC  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xD4: printf("CNC \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xCC: printf("CZ  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xC4: printf("CNZ \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xF4: printf("CP  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xFC: printf("CM  \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xEC: printf("CPE \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xE4: printf("CPO \t0x%02X%02X", opcode[2], opcode[1]); break;
-        case 0xC9: printf("RET "); break;
-        case 0xD8: printf("RC  "); break;
-        case 0xD0: printf("RNC "); break;
-        case 0xC8: printf("RZ  "); break;
-        case 0xC0: printf("RNZ "); break;
-        case 0xF0: printf("RP  "); break;
-        case 0xF8: printf("RM  "); break;
-        case 0xE8: printf("RPE "); break;
-        case 0xE0: printf("RPO "); break;
-        case 0xC7: printf("RST \t0"); break;
-        case 0xCF: printf("RST \t1"); break;
-        case 0xD7: printf("RST \t2"); break;
-        case 0xDF: printf("RST \t3"); break;
-        case 0xE7: printf("RST \t4"); break;
-        case 0xEF: printf("RST \t5"); break;
-        case 0xF7: printf("RST \t6"); break;
-        case 0xFF: printf("RST \t7"); break;
-        case 0xE9: printf("PCHL"); break;
+		// JMP addr - Jump
+        case 0xC3:											// JMP
+			state->pc = (opcode[2] << 8) | opcode[1];
+			break;
+
+		// JCondition addr - Conditional jump
+        case 0xDA:											// JC addr
+			if (state->cc.cy == 1)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xD2:											// JNC addr
+			if (state->cc.cy == 0)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xCA:											// JZ addr
+			if (state->cc.z == 1)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xC2:											// JNZ addr
+			if (state->cc.z == 0)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xF2:											// JP addr
+			if (state->cc.s == 0)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xFA:											// JM addr
+			if (state->cc.s == 1)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xEA:											// JPE addr
+			if (state->cc.p == 1)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+        case 0xE2:											// JPO addr
+			if (state->cc.p == 0)
+				state->pc = (opcode[2] << 8) | opcode[1];
+			else
+				state->pc += 2;
+			break;
+
+		// CALL addr - Call unconditional
+        case 0xCD:											// CALL addr
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = (opcode[2] << 8) | opcode[1];
+			break;
+
+		// CCondition addr - Conditional call
+        case 0xDC:											// CC addr
+			if (state->cc.cy == 1)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xD4:											// CNC addr
+			if (state->cc.cy == 0)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xCC:											// CZ addr
+			if (state->cc.z == 1)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xC4:											// CNZ addr
+			if (state->cc.z == 0)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xF4:											// CP addr
+			if (state->cc.s == 0)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xFC:											// CM addr
+			if (state->cc.s == 1)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xEC:											// CPE addr
+			if (state->cc.p == 1)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+        case 0xE4:											// CPO addr
+			if (state->cc.p == 0)
+			{
+				offset = state->pc+2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+			}
+			else
+				state->pc += 2;
+			break;
+
+		// RET - Return
+        case 0xC9:											// RET
+			Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			break;
+
+		// RCondition - Conditional return
+        case 0xD8:											// RC
+			if (state->cc.cy == 1)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xD0:											// RNC
+			if (state->cc.cy == 0)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xC8:											// RZ
+			if (state->cc.z == 1)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xC0:											// RNZ
+			if (state->cc.z == 0)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xF0:											// RP
+			if (state->cc.s == 0)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xF8:											// RM
+			if (state->cc.s == 1)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xE8:											// RPE
+			if (state->cc.p == 1)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+        case 0xE0:											// RPO
+			if (state->cc.p == 0)
+			{
+				Pop(state, (uint8_t *) &state->pc, (uint8_t *) &state->pc + 1);
+			}
+			break;
+
+		// RST n - Restart
+        case 0xC7:											// RST 0
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 0;
+			break;
+        case 0xCF:											// RST 1
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 1;
+			break;
+        case 0xD7:											// RST 2
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 2;
+			break;
+        case 0xDF:											// RST 3
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 3;
+			break;
+        case 0xE7:											// RST 4
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 4;
+			break;
+        case 0xEF:											// RST 5
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 5;
+			break;
+        case 0xF7:											// RST 6
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 6;
+			break;
+        case 0xFF:											// RST 7
+			offset = state->pc+2;
+			Push(state, offset >> 8, offset);
+			state->pc = 8 * 7;
+			break;
+
+		// PCHL - Jump H and L indirect - move H and L to PC
+        case 0xE9:											// PCHL
+			state->pc = (state->h << 8) | state->l;
+			break;
 
         /* STACK, I/O, AND MACHINE CONTROL GROUP */
 
