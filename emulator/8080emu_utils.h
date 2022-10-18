@@ -40,6 +40,7 @@ typedef struct State8080 {
 unsigned char cycles8080[256];
 
 int parity(int x, int size);
+void LogicFlagsA(State8080 *state);
 void ArithFlagsA(State8080 *state, uint16_t res);
 void UnimplementedInstruction(State8080* state);
 void WriteMem(State8080* state, uint16_t address, uint8_t value);
