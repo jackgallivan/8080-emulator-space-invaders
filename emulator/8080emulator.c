@@ -768,7 +768,7 @@ int Emulate8080Op(State8080* state)
 		// RAR - Rotate right through carry
         case 0x1F:											// RAR
 			data8 = state->a & 0x01;
-			state->a = (state->a << 1) | (state->cc.cy << 7);
+			state->a = (state->a >> 1) | (state->cc.cy << 7);
 			state->cc.cy = data8;
 			break;
 
