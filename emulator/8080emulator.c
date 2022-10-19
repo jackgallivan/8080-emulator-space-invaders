@@ -1,9 +1,20 @@
+/*	Define PRINTOPS to print opcode instructions
+	Define PRINTPSW to print PSW after every instruction
+*/
 #include "8080emulator.h"
 
-int Emulate8080Op(State8080* state)
+#ifdef PRINTOPS
+#include "../disassembler/disassembler.h"
+#endif
+
+int Emulate8080Op(State8080 *state)
 {
 	// int cycles = 4; // TODO: unused var
 	unsigned char *opcode = &state->memory[state->pc];
+
+#ifdef PRINTOPS
+	Disassemble8080Op(state->memory, state->pc);
+#endif
 
 	uint8_t data8, reg_1, reg_2;
 	uint16_t data16, offset;
@@ -12,120 +23,120 @@ int Emulate8080Op(State8080* state)
 	switch(*opcode)
 	{
 
-        /* DATA TRANSFER GROUP */
+		/* DATA TRANSFER GROUP */
 
 		// MOV r1,r2 - Move between registers
-        case 0x7F: state->a = state->a; break;				// MOV A,A
-        case 0x78: state->a = state->b; break;				// MOV A,B
-        case 0x79: state->a = state->c; break;				// MOV A,C
-        case 0x7A: state->a = state->d; break;				// MOV A,D
-        case 0x7B: state->a = state->e; break;				// MOV A,E
-        case 0x7C: state->a = state->h; break;				// MOV A,H
-        case 0x7D: state->a = state->l; break;				// MOV A,L
-        case 0x47: state->b = state->a; break;				// MOV B,A
-        case 0x40: state->b = state->b; break;				// MOV B,B
-        case 0x41: state->b = state->c; break;				// MOV B,C
-        case 0x42: state->b = state->d; break;				// MOV B,D
-        case 0x43: state->b = state->e; break;				// MOV B,E
-        case 0x44: state->b = state->h; break;				// MOV B,H
-        case 0x45: state->b = state->l; break;				// MOV B,L
-        case 0x4F: state->c = state->a; break;				// MOV C,A
-        case 0x48: state->c = state->b; break;				// MOV C,B
-        case 0x49: state->c = state->c; break;				// MOV C,C
-        case 0x4A: state->c = state->d; break;				// MOV C,D
-        case 0x4B: state->c = state->e; break;				// MOV C,E
-        case 0x4C: state->c = state->h; break;				// MOV C,H
-        case 0x4D: state->c = state->l; break;				// MOV C,L
-        case 0x57: state->d = state->a; break;				// MOV D,A
-        case 0x50: state->d = state->b; break;				// MOV D,B
-        case 0x51: state->d = state->c; break;				// MOV D,C
-        case 0x52: state->d = state->d; break;				// MOV D,D
-        case 0x53: state->d = state->e; break;				// MOV D,E
-        case 0x54: state->d = state->h; break;				// MOV D,H
-        case 0x55: state->d = state->l; break;				// MOV D,L
-        case 0x5F: state->e = state->a; break;				// MOV E,A
-        case 0x58: state->e = state->b; break;				// MOV E,B
-        case 0x59: state->e = state->c; break;				// MOV E,C
-        case 0x5A: state->e = state->d; break;				// MOV E,D
-        case 0x5B: state->e = state->e; break;				// MOV E,E
-        case 0x5C: state->e = state->h; break;				// MOV E,H
-        case 0x5D: state->e = state->l; break;				// MOV E,L
-        case 0x67: state->h = state->a; break;				// MOV H,A
-        case 0x60: state->h = state->b; break;				// MOV H,B
-        case 0x61: state->h = state->c; break;				// MOV H,C
-        case 0x62: state->h = state->d; break;				// MOV H,D
-        case 0x63: state->h = state->e; break;				// MOV H,E
-        case 0x64: state->h = state->h; break;				// MOV H,H
-        case 0x65: state->h = state->l; break;				// MOV H,L
-        case 0x6F: state->l = state->a; break;				// MOV L,A
-        case 0x68: state->l = state->b; break;				// MOV L,B
-        case 0x69: state->l = state->c; break;				// MOV L,C
-        case 0x6A: state->l = state->d; break;				// MOV L,D
-        case 0x6B: state->l = state->e; break;				// MOV L,E
-        case 0x6C: state->l = state->h; break;				// MOV L,H
-        case 0x6D: state->l = state->l; break;				// MOV L,L
+		case 0x7F: state->a = state->a; break;				// MOV A,A
+		case 0x78: state->a = state->b; break;				// MOV A,B
+		case 0x79: state->a = state->c; break;				// MOV A,C
+		case 0x7A: state->a = state->d; break;				// MOV A,D
+		case 0x7B: state->a = state->e; break;				// MOV A,E
+		case 0x7C: state->a = state->h; break;				// MOV A,H
+		case 0x7D: state->a = state->l; break;				// MOV A,L
+		case 0x47: state->b = state->a; break;				// MOV B,A
+		case 0x40: state->b = state->b; break;				// MOV B,B
+		case 0x41: state->b = state->c; break;				// MOV B,C
+		case 0x42: state->b = state->d; break;				// MOV B,D
+		case 0x43: state->b = state->e; break;				// MOV B,E
+		case 0x44: state->b = state->h; break;				// MOV B,H
+		case 0x45: state->b = state->l; break;				// MOV B,L
+		case 0x4F: state->c = state->a; break;				// MOV C,A
+		case 0x48: state->c = state->b; break;				// MOV C,B
+		case 0x49: state->c = state->c; break;				// MOV C,C
+		case 0x4A: state->c = state->d; break;				// MOV C,D
+		case 0x4B: state->c = state->e; break;				// MOV C,E
+		case 0x4C: state->c = state->h; break;				// MOV C,H
+		case 0x4D: state->c = state->l; break;				// MOV C,L
+		case 0x57: state->d = state->a; break;				// MOV D,A
+		case 0x50: state->d = state->b; break;				// MOV D,B
+		case 0x51: state->d = state->c; break;				// MOV D,C
+		case 0x52: state->d = state->d; break;				// MOV D,D
+		case 0x53: state->d = state->e; break;				// MOV D,E
+		case 0x54: state->d = state->h; break;				// MOV D,H
+		case 0x55: state->d = state->l; break;				// MOV D,L
+		case 0x5F: state->e = state->a; break;				// MOV E,A
+		case 0x58: state->e = state->b; break;				// MOV E,B
+		case 0x59: state->e = state->c; break;				// MOV E,C
+		case 0x5A: state->e = state->d; break;				// MOV E,D
+		case 0x5B: state->e = state->e; break;				// MOV E,E
+		case 0x5C: state->e = state->h; break;				// MOV E,H
+		case 0x5D: state->e = state->l; break;				// MOV E,L
+		case 0x67: state->h = state->a; break;				// MOV H,A
+		case 0x60: state->h = state->b; break;				// MOV H,B
+		case 0x61: state->h = state->c; break;				// MOV H,C
+		case 0x62: state->h = state->d; break;				// MOV H,D
+		case 0x63: state->h = state->e; break;				// MOV H,E
+		case 0x64: state->h = state->h; break;				// MOV H,H
+		case 0x65: state->h = state->l; break;				// MOV H,L
+		case 0x6F: state->l = state->a; break;				// MOV L,A
+		case 0x68: state->l = state->b; break;				// MOV L,B
+		case 0x69: state->l = state->c; break;				// MOV L,C
+		case 0x6A: state->l = state->d; break;				// MOV L,D
+		case 0x6B: state->l = state->e; break;				// MOV L,E
+		case 0x6C: state->l = state->h; break;				// MOV L,H
+		case 0x6D: state->l = state->l; break;				// MOV L,L
 
 		// MOV r,M - Move from memory to register
-        case 0x7E: state->a = ReadFromHL(state); break;		// MOV A,M
-        case 0x46: state->b = ReadFromHL(state); break;		// MOV B,M
-        case 0x4E: state->c = ReadFromHL(state); break;		// MOV C,M
-        case 0x56: state->d = ReadFromHL(state); break;		// MOV D,M
-        case 0x5E: state->e = ReadFromHL(state); break;		// MOV E,M
-        case 0x66: state->h = ReadFromHL(state); break;		// MOV H,M
-        case 0x6E: state->l = ReadFromHL(state); break;		// MOV L,M
+		case 0x7E: state->a = ReadFromHL(state); break;		// MOV A,M
+		case 0x46: state->b = ReadFromHL(state); break;		// MOV B,M
+		case 0x4E: state->c = ReadFromHL(state); break;		// MOV C,M
+		case 0x56: state->d = ReadFromHL(state); break;		// MOV D,M
+		case 0x5E: state->e = ReadFromHL(state); break;		// MOV E,M
+		case 0x66: state->h = ReadFromHL(state); break;		// MOV H,M
+		case 0x6E: state->l = ReadFromHL(state); break;		// MOV L,M
 
 		// MOV M,r - Move to memory from register
-        case 0x77: WriteToHL(state, state->a); break;		// MOV M,A
-        case 0x70: WriteToHL(state, state->b); break;		// MOV M,B
-        case 0x71: WriteToHL(state, state->c); break;		// MOV M,C
-        case 0x72: WriteToHL(state, state->d); break;		// MOV M,D
-        case 0x73: WriteToHL(state, state->e); break;		// MOV M,E
-        case 0x74: WriteToHL(state, state->h); break;		// MOV M,H
-        case 0x75: WriteToHL(state, state->l); break;		// MOV M,L
+		case 0x77: WriteToHL(state, state->a); break;		// MOV M,A
+		case 0x70: WriteToHL(state, state->b); break;		// MOV M,B
+		case 0x71: WriteToHL(state, state->c); break;		// MOV M,C
+		case 0x72: WriteToHL(state, state->d); break;		// MOV M,D
+		case 0x73: WriteToHL(state, state->e); break;		// MOV M,E
+		case 0x74: WriteToHL(state, state->h); break;		// MOV M,H
+		case 0x75: WriteToHL(state, state->l); break;		// MOV M,L
 
 		// MVI r,data - Move to register immediate
-        case 0x3E:											// MVI A,data
+		case 0x3E:											// MVI A,data
 			state->a = opcode[1];
 			state->pc++;
 			break;
-        case 0x06:											// MVI B,data
+		case 0x06:											// MVI B,data
 			state->b = opcode[1];
 			state->pc++;
 			break;
-        case 0x0E:											// MVI C,data
+		case 0x0E:											// MVI C,data
 			state->c = opcode[1];
 			state->pc++;
 			break;
-        case 0x16:											// MVI D,data
+		case 0x16:											// MVI D,data
 			state->d = opcode[1];
 			state->pc++;
 			break;
-        case 0x1E:											// MVI E,data
+		case 0x1E:											// MVI E,data
 			state->e = opcode[1];
 			state->pc++;
 			break;
-        case 0x26:											// MVI H,data
+		case 0x26:											// MVI H,data
 			state->h = opcode[1];
 			state->pc++;
 			break;
-        case 0x2E:											// MVI L,data
+		case 0x2E:											// MVI L,data
 			state->l = opcode[1];
 			state->pc++;
 			break;
 
 		// MVI M,data - Move to memory immediate
-        case 0x36:											// MVI M,data
+		case 0x36:											// MVI M,data
 			WriteToHL(state, opcode[1]);
 			state->pc++;
 			break;
 
 		// LXI rp,data16 - Load register pair immediate
-        case 0x01:											// LXI B,data16
+		case 0x01:											// LXI B,data16
 			state->c = opcode[1];
 			state->b = opcode[2];
 			state->pc += 2;
 			break;
-        case 0x11:											// LXI D,data16
+		case 0x11:											// LXI D,data16
 			state->d = opcode[1];
 			state->e = opcode[2];
 			state->pc += 2;
@@ -203,11 +214,11 @@ int Emulate8080Op(State8080* state)
         /* ARITHMETIC GROUP */
 
 		// ADD r - Add register
-        case 0x87:											// ADD A
-			data16 = (uint16_t) state->a + (uint16_t) state->a;
-			ArithFlagsA(state, data16);
-			state->a=(data16&0xff);
-			break;
+        case 0x87: // ADD A
+            data16 = (uint16_t)state->a + (uint16_t)state->a;
+            ArithFlagsA(state, data16);
+            state->a = (data16 & 0xff);
+            break;
         case 0x80:											// ADD B
 			data16 = (uint16_t) state->a + (uint16_t) state->b;
 			ArithFlagsA(state, data16);
@@ -1117,14 +1128,21 @@ int Emulate8080Op(State8080* state)
 		default: UnimplementedInstruction(state);
 	}
 
+#ifdef PRINTPSW
+	printf("FLAGS:\n\tCY=%u P=%u AC=%u Z=%u S=%u\n",
+		   state->cc.cy, state->cc.p, state->cc.ac, state->cc.z, state->cc.s);
+	printf("REGISTERS:\n\tA=0x%02x B=0x%02x C=0x%02x D=0x%02x E=0x%02x "
+		   "H=0x%02x L=0x%02x SP=0x%04x PC=0x%04x\n");
+#endif
+
 	return cycles8080[*opcode];
 }
 
-int main (int argc, char**argv)
+int main(int argc, char **argv)
 {
 	int done = 0;
 	// int vblankcycles = 0; // TODO: unused var
-	State8080* state = Init8080();
+	State8080 *state = Init8080();
 
 	ReadFileIntoMemoryAt(state, "invaders.h", 0);
 	ReadFileIntoMemoryAt(state, "invaders.g", 0x800);
