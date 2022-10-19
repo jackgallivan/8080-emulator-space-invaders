@@ -3,40 +3,40 @@
 // Number of cycles per instruction
 // Referenced from Intel 8080 CPU User Manual
 unsigned char cycles8080[256] = {
-	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x00..0x0f
-	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4, //0x10..0x1f
-	4, 10, 16, 5, 5, 5, 7, 4, 4, 10, 16, 5, 5, 5, 7, 4, //etc
+	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,       //0x00..0x0f
+	4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,       //0x10..0x1f
+	4, 10, 16, 5, 5, 5, 7, 4, 4, 10, 16, 5, 5, 5, 7, 4,     //etc
 	4, 10, 13, 5, 10, 10, 10, 4, 4, 10, 13, 5, 5, 5, 7, 4,
 
-	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5, //0x40..0x4f
+	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,     //0x40..0x4f
 	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
 	5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
-	7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 5, //0x70..0x7f
+	7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 5,     //0x70..0x7f
 
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4, //0x80..8x4f
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,     //0x80..8x4f
 	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
 	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
-	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4, //0xb0..0xbf
+	4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,     //0xb0..0xbf
 
-	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11, //0xc0..0xcf
+	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11,     //0xc0..0xcf
 	11, 10, 10, 10, 17, 11, 7, 11, 11, 10, 10, 10, 10, 17, 7, 11,
 	11, 10, 10, 18, 17, 11, 7, 11, 11, 5, 10, 5, 17, 17, 7, 11,
-	11, 10, 10, 4, 17, 11, 7, 11, 11, 5, 10, 4, 17, 17, 7, 11, //0xf0..0xff
+	11, 10, 10, 4, 17, 11, 7, 11, 11, 5, 10, 4, 17, 17, 7, 11,     //0xf0..0xff
 };
 
 /*
-    parity:
-    Sets parity flag when the input has an even parity and unsets it it has an odd parity
-    x: integer value
-    size: the size of the math instruction, in bits
-    return: the value of the parity flag: 0 if set, 1 if unset
+	parity:
+	Sets parity flag when the input has an even parity and unsets it it has an odd parity
+	x: integer value
+	size: the size of the math instruction, in bits
+	return: the value of the parity flag: 0 if set, 1 if unset
 */
 int parity(int x, int size)
 {
 	int i;
 	int p = 0;
-	x = (x & ((1<<size)-1));
-	for (i=0; i<size; i++)
+	x = (x & ((1 << size) - 1));
+	for (i = 0; i < size; i++)
 	{
 		if (x & 0x1) p++;
 		x = x >> 1;
@@ -59,45 +59,45 @@ void LogicFlagsA(State8080 *state)
 }
 
 /*
-    ArithFlagsA:
-    Update Zero, Sign and Parity flags upon updating A register using
+	ArithFlagsA:
+	Update Zero, Sign and Parity flags upon updating A register using
 	addition and subtraction instructions
-    state: state of registers and memory
+	state: state of registers and memory
 	res: result of arithmetic operation
 */
 void ArithFlagsA(State8080 *state, uint16_t res)
 {
 	state->cc.cy = (res > 0xff);
-	state->cc.z = ((res&0xff) == 0);
+	state->cc.z = ((res & 0xff) == 0);
 	state->cc.s = (0x80 == (res & 0x80));
-	state->cc.p = parity(res&0xff, 8);
+	state->cc.p = parity(res & 0xff, 8);
 }
 
 /*
-    UnimplementedInstruction:
-    Generates error when an unimplemented instruction is found
-    state: state of registers and memory
+	UnimplementedInstruction:
+	Generates error when an unimplemented instruction is found
+	state: state of registers and memory
 */
-void UnimplementedInstruction(State8080* state)
+void UnimplementedInstruction(State8080 *state)
 {
 	//pc will have advanced one, so undo that
-	printf ("Error: Unimplemented instruction\n");
+	printf("Error: Unimplemented instruction\n");
 	state->pc--;
 	exit(1);
 }
 
 /*
-    WriteMem:
-    Stores input value directly in specified memory location
-    state: state of registers and memory
+	WriteMem:
+	Stores input value directly in specified memory location
+	state: state of registers and memory
 	address: direct location in memory
 	value: value to store in memory
 */
-void WriteMem(State8080* state, uint16_t address, uint8_t value)
+void WriteMem(State8080 *state, uint16_t address, uint8_t value)
 {
-    if (address >= 0x2000 && address < 0x4000)
+	if (address >= 0x2000 && address < 0x4000)
 	{
-        state->memory[address] = value;
+		state->memory[address] = value;
 	}
 	else
 	{
@@ -106,26 +106,26 @@ void WriteMem(State8080* state, uint16_t address, uint8_t value)
 }
 
 /*
-    ReadFromHL:
-    Read value from memory
-    state: state of registers and memory
+	ReadFromHL:
+	Read value from memory
+	state: state of registers and memory
 */
-uint8_t ReadFromHL(State8080* state)
+uint8_t ReadFromHL(State8080 *state)
 {
-    uint16_t offset = (state->h << 8) | state->l;
-    return state->memory[offset];
+	uint16_t offset = (state->h << 8) | state->l;
+	return state->memory[offset];
 }
 
 /*
-    WriteFromHL:
-    Write input value from memory
-    state: state of registers and memory
+	WriteFromHL:
+	Write input value from memory
+	state: state of registers and memory
 	value: input value to write to memory
 */
-void WriteToHL(State8080* state, uint8_t value)
+void WriteToHL(State8080 *state, uint8_t value)
 {
-    uint16_t offset = (state->h << 8) | state->l;
-    WriteMem(state, offset, value);
+	uint16_t offset = (state->h << 8) | state->l;
+	WriteMem(state, offset, value);
 }
 
 /*
@@ -135,11 +135,11 @@ void WriteToHL(State8080* state, uint8_t value)
 	high: high bit register
 	low: low bit register
 */
-void Push(State8080* state, uint8_t high, uint8_t low)
+void Push(State8080 *state, uint8_t high, uint8_t low)
 {
-    WriteMem(state, state->sp-1, high);
-    WriteMem(state, state->sp-2, low);
-    state->sp = state->sp - 2;
+	WriteMem(state, state->sp - 1, high);
+	WriteMem(state, state->sp - 2, low);
+	state->sp = state->sp - 2;
 }
 
 /*
@@ -149,24 +149,24 @@ void Push(State8080* state, uint8_t high, uint8_t low)
 	*high: location of high bit register
 	*low: location of low bit register
 */
-void Pop(State8080* state, uint8_t *high, uint8_t *low)
+void Pop(State8080 *state, uint8_t *high, uint8_t *low)
 {
-    *low = state->memory[state->sp];
-    *high = state->memory[state->sp+1];
-    state->sp += 2;
+	*low = state->memory[state->sp];
+	*high = state->memory[state->sp + 1];
+	state->sp += 2;
 }
 
 /*
-    FlagsZSP:
-    Update Zero, Sign and Parity flags upon adding immediate
-    state: state of registers and memory
+	FlagsZSP:
+	Update Zero, Sign and Parity flags upon adding immediate
+	state: state of registers and memory
 	value: ...
 */
 void FlagsZSP(State8080 *state, uint8_t value)
 {
-    state->cc.z = (value == 0);
-    state->cc.s = (0x80 == (value & 0x80));
-    state->cc.p = parity(value, 8);
+	state->cc.z = (value == 0);
+	state->cc.s = (0x80 == (value & 0x80));
+	state->cc.p = parity(value, 8);
 }
 
 /*
@@ -176,10 +176,10 @@ void FlagsZSP(State8080 *state, uint8_t value)
 	filename: name of the input file
 	offset: location to read to in memory
 */
-void ReadFileIntoMemoryAt(State8080* state, char* filename, uint32_t offset)
+void ReadFileIntoMemoryAt(State8080 *state, char *filename, uint32_t offset)
 {
-	FILE *f= fopen(filename, "rb");
-	if (f==NULL)
+	FILE *f = fopen(filename, "rb");
+	if (f == NULL)
 	{
 		printf("error: Couldn't open %s\n", filename);
 		exit(1);
@@ -197,9 +197,9 @@ void ReadFileIntoMemoryAt(State8080* state, char* filename, uint32_t offset)
 	Init8080:
 	Initialize the state of the registers and memory of the processor
 */
-State8080* Init8080(void)
+State8080 *Init8080(void)
 {
-	State8080* state = calloc(1, sizeof(State8080));
-	state->memory = malloc(0x10000);  //16K
+	State8080 *state = calloc(1, sizeof(State8080));
+	state->memory = malloc(0x10000);     //16K
 	return state;
 }
