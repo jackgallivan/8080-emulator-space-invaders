@@ -5,7 +5,7 @@
 #include "8080emulator.h"
 
 #ifdef PRINTOPS
-#include "../disassembler/disassembler.h"
+#include "../disassembler/disassembler.c"
 #endif
 
 int Emulate8080Op(State8080 *state)
