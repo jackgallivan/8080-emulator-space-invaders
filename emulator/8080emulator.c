@@ -140,18 +140,18 @@ int Emulate8080Op(State8080 *state)
 
 		// LXI rp,data16 - Load register pair immediate
 		case 0x01:     // LXI B,data16
-			state->c = opcode[1];
 			state->b = opcode[2];
+			state->c = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x11:     // LXI D,data16
-			state->d = opcode[1];
-			state->e = opcode[2];
+			state->d = opcode[2];
+			state->e = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x21:     // LXI H,data16
-			state->h = opcode[1];
-			state->l = opcode[2];
+			state->h = opcode[2];
+			state->l = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x31:     // LXI SP,data16
