@@ -1117,7 +1117,8 @@ int Emulate8080Op(State8080 *state)
 	printf("FLAGS:\n\tCY=%u P=%u AC=%u Z=%u S=%u\n",
 		   state->cc.cy, state->cc.p, state->cc.ac, state->cc.z, state->cc.s);
 	printf("REGISTERS:\n\tA=0x%02x B=0x%02x C=0x%02x D=0x%02x E=0x%02x "
-		   "H=0x%02x L=0x%02x SP=0x%04x PC=0x%04x\n");
+		   "H=0x%02x L=0x%02x SP=0x%04x PC=0x%04x\n",
+		   state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->sp, state->pc);
 #endif
 
 	return cycles8080[*opcode];
