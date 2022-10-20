@@ -13,13 +13,20 @@ int Emulate8080Op(State8080 *state)
 	// int cycles = 4; // TODO: unused var
 	unsigned char *opcode = &state->memory[state->pc];
 
-#ifdef PRINTOPS
-	Disassemble8080Op(state->memory, state->pc);
-#endif
-
 	uint8_t data8, reg_1, reg_2;
 	uint16_t data16, offset;
 	uint32_t data32, reg_pair_1, reg_pair_2;
+
+#ifdef PRINTOPS
+	Disassemble8080Op(state->memory, state->pc);
+#ifndef PRINTPSW
+	printf("\n");
+#else
+	printf("\t");
+#endif
+#endif
+
+	state->pc++;
 
 	switch (*opcode)
 	{
@@ -133,18 +140,18 @@ int Emulate8080Op(State8080 *state)
 
 		// LXI rp,data16 - Load register pair immediate
 		case 0x01:     // LXI B,data16
-			state->c = opcode[1];
 			state->b = opcode[2];
+			state->c = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x11:     // LXI D,data16
-			state->d = opcode[1];
-			state->e = opcode[2];
+			state->d = opcode[2];
+			state->e = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x21:     // LXI H,data16
-			state->h = opcode[1];
-			state->l = opcode[2];
+			state->h = opcode[2];
+			state->l = opcode[1];
 			state->pc += 2;
 			break;
 		case 0x31:     // LXI SP,data16
@@ -1114,14 +1121,19 @@ int Emulate8080Op(State8080 *state)
 	}
 
 #ifdef PRINTPSW
-	printf("FLAGS:\n\tCY=%u P=%u AC=%u Z=%u S=%u\n",
-		   state->cc.cy, state->cc.p, state->cc.ac, state->cc.z, state->cc.s);
-	printf("REGISTERS:\n\tA=0x%02x B=0x%02x C=0x%02x D=0x%02x E=0x%02x "
-		   "H=0x%02x L=0x%02x SP=0x%04x PC=0x%04x\n",
-		   state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->sp, state->pc);
+	printf("\tREGISTERS:  "
+	       "A=%02x B=%02x C=%02x D=%02x E=%02x H=%02x L=%02x SP=%04x PC=%04x      ",
+	       state->a, state->b, state->c, state->d, state->e, state->h, state->l, state->sp, state->pc);
+	printf("FLAGS:  %c %c %c %s %s\n",
+	       state->cc.z ? 'Z' : '-',
+	       state->cc.s ? 'S' : '-',
+	       state->cc.p ? 'P' : '-',
+	       state->cc.cy ? "CY" : "--",
+	       state->cc.ac ? "AC" : "--");
 #endif
 
-	return cycles8080[*opcode];
+	// return cycles8080[*opcode];
+	return 0;
 }
 
 int main(int argc, char **argv)
@@ -1130,10 +1142,10 @@ int main(int argc, char **argv)
 	// int vblankcycles = 0; // TODO: unused var
 	State8080 *state = Init8080();
 
-	ReadFileIntoMemoryAt(state, "invaders.h", 0);
-	ReadFileIntoMemoryAt(state, "invaders.g", 0x800);
-	ReadFileIntoMemoryAt(state, "invaders.f", 0x1000);
-	ReadFileIntoMemoryAt(state, "invaders.e", 0x1800);
+	ReadFileIntoMemoryAt(state, "../invaders/invaders.h", 0);
+	ReadFileIntoMemoryAt(state, "../invaders/invaders.g", 0x800);
+	ReadFileIntoMemoryAt(state, "../invaders/invaders.f", 0x1000);
+	ReadFileIntoMemoryAt(state, "../invaders/invaders.e", 0x1800);
 
 	while (done == 0)
 	{
