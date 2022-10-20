@@ -1141,11 +1141,20 @@ int main(int argc, char **argv)
 	int done = 0;
 	// int vblankcycles = 0; // TODO: unused var
 	State8080 *state = Init8080();
-
-	ReadFileIntoMemoryAt(state, "../invaders/invaders.h", 0);
-	ReadFileIntoMemoryAt(state, "../invaders/invaders.g", 0x800);
-	ReadFileIntoMemoryAt(state, "../invaders/invaders.f", 0x1000);
-	ReadFileIntoMemoryAt(state, "../invaders/invaders.e", 0x1800);
+	if (argc == 1)
+	{
+		ReadFileIntoMemoryAt(state, "../invaders/invaders.h", 0);
+		ReadFileIntoMemoryAt(state, "../invaders/invaders.g", 0x800);
+		ReadFileIntoMemoryAt(state, "../invaders/invaders.f", 0x1000);
+		ReadFileIntoMemoryAt(state, "../invaders/invaders.e", 0x1800);
+	}
+	else if (argc == 2)
+		ReadFileIntoMemoryAt(state, argv[1], 0);
+	else
+	{
+		printf("Invalid Number of arguments\n");
+		exit(1);
+	}
 
 	while (done == 0)
 	{
