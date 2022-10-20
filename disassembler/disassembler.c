@@ -291,30 +291,30 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 	return opbytes;
 }
 
-int main(int argc, char **argv)
-{
-	FILE *f = fopen(argv[1], "rb");
-	if (f == NULL)
-	{
-		printf("ERROR: Couldn't open %s\n", argv[1]);
-		exit(1);
-	}
+// int main(int argc, char **argv)
+// {
+// 	FILE *f = fopen(argv[1], "rb");
+// 	if (f == NULL)
+// 	{
+// 		printf("ERROR: Couldn't open %s\n", argv[1]);
+// 		exit(1);
+// 	}
 
-	// Get file size and read file into buffer
-	fseek(f, 0L, SEEK_END);
-	int fsize = ftell(f);
-	fseek(f, 0L, SEEK_SET);
+// 	// Get file size and read file into buffer
+// 	fseek(f, 0L, SEEK_END);
+// 	int fsize = ftell(f);
+// 	fseek(f, 0L, SEEK_SET);
 
-	unsigned char *buffer = malloc(fsize);
+// 	unsigned char *buffer = malloc(fsize);
 
-	fread(buffer, fsize, 1, f);
-	fclose(f);
+// 	fread(buffer, fsize, 1, f);
+// 	fclose(f);
 
-	int pc = 0;
+// 	int pc = 0;
 
-	while (pc < fsize)
-	{
-		pc += Disassemble8080Op(buffer, pc);
-	}
-	return 0;
-}
+// 	while (pc < fsize)
+// 	{
+// 		pc += Disassemble8080Op(buffer, pc);
+// 	}
+// 	return 0;
+// }
