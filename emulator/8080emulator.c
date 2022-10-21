@@ -954,41 +954,41 @@ int Emulate8080Op(State8080 *state)
 
 		// RET - Return
 		case 0xC9:     // RET
-			Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+			Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 
 		// RCondition - Conditional return
 		case 0xD8:     // RC
 			if (state->cc.cy == 1)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xD0:     // RNC
 			if (state->cc.cy == 0)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xC8:     // RZ
 			if (state->cc.z == 1)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xC0:     // RNZ
 			if (state->cc.z == 0)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xF0:     // RP
 			if (state->cc.s == 0)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xF8:     // RM
 			if (state->cc.s == 1)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xE8:     // RPE
 			if (state->cc.p == 1)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 		case 0xE0:     // RPO
 			if (state->cc.p == 0)
-				Pop(state, (uint8_t *)&state->pc, (uint8_t *)&state->pc + 1);
+				Pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
 			break;
 
 		// RST n - Restart
