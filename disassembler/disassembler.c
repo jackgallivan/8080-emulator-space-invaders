@@ -230,7 +230,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 
 		case 0xC3: printf("JMP \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
 		case 0xDA: printf("JC  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xD2: printf("JN  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
+		case 0xD2: printf("JNC \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
 		case 0xCA: printf("JZ  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
 		case 0xC2: printf("JNZ \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
 		case 0xF2: printf("JP  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
