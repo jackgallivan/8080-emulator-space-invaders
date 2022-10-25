@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 // Some code cares that these flags are in exact
 // right bits when.  For instance, some code

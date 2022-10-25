@@ -95,7 +95,6 @@ void UnimplementedInstruction(State8080 *state)
 */
 void WriteMem(State8080 *state, uint16_t address, uint8_t value)
 {
-#ifndef CPUDIAG
 	if (address >= 0x2000 && address < 0x4000)
 	{
 		state->memory[address] = value;
@@ -105,9 +104,6 @@ void WriteMem(State8080 *state, uint16_t address, uint8_t value)
 		printf("\n\tERROR: INVALID WRITE LOCATION");
 		return;
 	}
-#else
-	state->memory[address] = value;
-#endif
 }
 
 /*
