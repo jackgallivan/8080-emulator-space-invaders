@@ -226,50 +226,62 @@ int Emulate8080Op(State8080 *state)
 		// ADD r - Add register
 		case 0x87:     // ADD A
 			data16 = (uint16_t)state->a + (uint16_t)state->a;
+			// state->cc.ac = (state->a & 0x0f) + (state->a & 0x0f) > 0x0f ? 1 : 0;
+			state->cc.ac = ((state->a & 0x0f) + (state->a & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x80:     // ADD B
 			data16 = (uint16_t)state->a + (uint16_t)state->b;
+			state->cc.ac = ((state->a & 0x0f) + (state->b & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x81:     // ADD C
 			data16 = (uint16_t)state->a + (uint16_t)state->c;
+			state->cc.ac = ((state->a & 0x0f) + (state->c & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x82:     // ADD D
 			data16 = (uint16_t)state->a + (uint16_t)state->d;
+			state->cc.ac = ((state->a & 0x0f) + (state->d & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x83:     // ADD E
 			data16 = (uint16_t)state->a + (uint16_t)state->e;
+			state->cc.ac = ((state->a & 0x0f) + (state->e & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x84:     // ADD H
 			data16 = (uint16_t)state->a + (uint16_t)state->h;
+			state->cc.ac = ((state->a & 0x0f) + (state->h & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x85:     // ADD L
 			data16 = (uint16_t)state->a + (uint16_t)state->l;
+			state->cc.ac = ((state->a & 0x0f) + (state->l & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 
 		// ADD M - Add memory
 		case 0x86:     // ADD M
-			data16 = (uint16_t)state->a + (uint16_t)ReadFromHL(state);
+			data8 = ReadFromHL(state);
+			data16 = (uint16_t)state->a + (uint16_t)data8;
+			state->cc.ac = ((state->a & 0x0f) + (data8 & 0x0f)) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 
 		// ADI data - Add immediate
 		case 0xC6:     // ADI data
-			data16 = (uint16_t)state->a + (uint16_t)opcode[1];
+			data8 = opcode[1];
+			data16 = (uint16_t)state->a + (uint16_t)data8;
+			state->cc.ac = ((state->a & 0x0f) + (data8 & 0x0f)) > 0x0f;
 			FlagsZSP(state, data16 & 0xff);
 			state->cc.cy = (data16 > 0xff);
 			state->a = data16 & 0xff;
@@ -279,50 +291,61 @@ int Emulate8080Op(State8080 *state)
 		// ADC r - Add register with carry
 		case 0x8F:     // ADC A
 			data16 = (uint16_t)state->a + (uint16_t)state->a + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->a & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x88:     // ADC B
 			data16 = (uint16_t)state->a + (uint16_t)state->b + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->b & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x89:     // ADC C
 			data16 = (uint16_t)state->a + (uint16_t)state->c + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->c & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x8A:     // ADC D
 			data16 = (uint16_t)state->a + (uint16_t)state->d + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->d & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x8B:     // ADC E
 			data16 = (uint16_t)state->a + (uint16_t)state->e + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->e & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x8C:     // ADC H
 			data16 = (uint16_t)state->a + (uint16_t)state->h + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->h & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 		case 0x8D:     // ADC L
 			data16 = (uint16_t)state->a + (uint16_t)state->l + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (state->l & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 
 		// ADC M - Add memory with carry
 		case 0x8E:     // ADC M
-			data16 = (uint16_t)state->a + (uint16_t)ReadFromHL(state) + state->cc.cy;
+			data8 = ReadFromHL(state);
+			data16 = (uint16_t)state->a + (uint16_t)data8 + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (data8 & 0x0f) + state->cc.cy) > 0x0f;
 			ArithFlagsA(state, data16);
 			state->a = (data16 & 0xff);
 			break;
 
 		// ACI data - Add immediate with carry
 		case 0xCE:     // ACI data
-			data16 = state->a + opcode[1] + state->cc.cy;
+			data8 = opcode[1];
+			data16 = (uint16_t)state->a + (uint16_t)data8 + state->cc.cy;
+			state->cc.ac = ((state->a & 0x0f) + (data8 & 0x0f) + state->cc.cy) > 0x0f;
 			FlagsZSP(state, data16 & 0xff);
 			state->cc.cy = (data16 > 0xff);
 			state->a = data16 & 0xff;
@@ -437,37 +460,46 @@ int Emulate8080Op(State8080 *state)
 
 		// INR r - Increment register
 		case 0x3C:     // INR A
+			state->cc.ac = (state->a & 0x0f) == 0x0f;
 			state->a += 1;
 			FlagsZSP(state, state->a);
 			break;
 		case 0x04:     // INR B
+			state->cc.ac = (state->b & 0x0f) == 0x0f;
 			state->b += 1;
 			FlagsZSP(state, state->b);
 			break;
 		case 0x0C:     // INR C
+			state->cc.ac = (state->c & 0x0f) == 0x0f;
 			state->c += 1;
 			FlagsZSP(state, state->c);
 			break;
 		case 0x14:     // INR D
+			state->cc.ac = (state->d & 0x0f) == 0x0f;
 			state->d += 1;
 			FlagsZSP(state, state->d);
 			break;
 		case 0x1C:     // INR E
+			state->cc.ac = (state->e & 0x0f) == 0x0f;
 			state->e += 1;
 			FlagsZSP(state, state->e);
 			break;
 		case 0x24:     // INR H
+			state->cc.ac = (state->h & 0x0f) == 0x0f;
 			state->h += 1;
 			FlagsZSP(state, state->h);
 			break;
 		case 0x2C:     // INR L
+			state->cc.ac = (state->l & 0x0f) == 0x0f;
 			state->l += 1;
 			FlagsZSP(state, state->l);
 			break;
 
 		// INR M - Increment memory
 		case 0x34:     // INR M
-			data8 = ReadFromHL(state) + 1;
+			data8 = ReadFromHL(state);
+			state->cc.ac = (data8 & 0x0f) == 0x0f;
+			data8 += 1;
 			FlagsZSP(state, data8);
 			WriteToHL(state, data8);
 			break;
@@ -583,14 +615,17 @@ int Emulate8080Op(State8080 *state)
 
 		// DAA - Decimal adjust accumulator
 		case 0x27:     // DAA
-			if ((state->a & 0xf) > 9)
-				state->a += 6;
-			if ((state->a & 0xf0) > 0x90)
+			data16 = (state->a & 0x0f);
+			if (data16 > 9 || state->cc.ac)
 			{
-				data16 = (uint16_t)state->a + 0x60;
-				state->a = data16 & 0xff;
-			ArithFlagsA(state, data16);
+				data16 += 6;
+				state->cc.ac |= (data16 > 0x0f);
 			}
+			data16 += (state->a & 0xf0);
+			if ((data16 & 0xf0) > 0x90 || state->cc.cy)
+				data16 += 0x60;
+			ArithFlagsA(state, data16);
+			state->a = (data16 & 0xff);
 			break;
 
 		/* LOGICAL GROUP */
