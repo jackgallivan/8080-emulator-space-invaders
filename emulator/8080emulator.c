@@ -3,9 +3,11 @@
 	#define PRINTPSW: print PSW after every emulated instruction
 */
 #include "8080emulator.h"
-
 #ifdef PRINTOPS
 #include "../disassembler/disassembler.h"
+#endif
+#ifdef CPUDIAG
+#include "string.h"
 #endif
 
 int Emulate8080Op(State8080 *state)
@@ -587,7 +589,7 @@ int Emulate8080Op(State8080 *state)
 			{
 				data16 = (uint16_t)state->a + 0x60;
 				state->a = data16 & 0xff;
-				ArithFlagsA(state, data16);
+			ArithFlagsA(state, data16);
 			}
 			break;
 
@@ -811,6 +813,10 @@ int Emulate8080Op(State8080 *state)
 		// JMP addr - Jump
 		case 0xC3:     // JMP addr
 			state->pc = (opcode[2] << 8) | opcode[1];
+#ifdef CPUDIAG
+			if (state->pc == 0)
+				exit(0);
+#endif
 			break;
 
 		// JCondition addr - Conditional jump
@@ -865,9 +871,31 @@ int Emulate8080Op(State8080 *state)
 
 		// CALL addr - Call unconditional
 		case 0xCD:     // CALL addr
-			offset = state->pc + 2;
-			Push(state, offset >> 8, offset);
-			state->pc = (opcode[2] << 8) | opcode[1];
+#ifdef CPUDIAG
+			if (5 == ((opcode[2] << 8) | opcode[1]))
+			{
+				if (state->c == 9)
+				{
+					offset = (state->d << 8) | (state->e);
+					uint8_t *str = &state->memory[offset + 3];     // skip prefix bytes
+					while (*str != '$')
+						printf("%c", *str++);
+					printf("\n");
+				}
+				else if (state->c == 2)
+				{
+					printf("print char routine called\n");
+				}
+			}
+			else
+			{
+#endif
+				offset = state->pc + 2;
+				Push(state, offset >> 8, offset);
+				state->pc = (opcode[2] << 8) | opcode[1];
+#ifdef CPUDIAG
+			}
+#endif
 			break;
 
 		// CCondition addr - Conditional call
@@ -1149,7 +1177,30 @@ int main(int argc, char **argv)
 		ReadFileIntoMemoryAt(state, "../invaders/invaders.e", 0x1800);
 	}
 	else if (argc == 2)
-		ReadFileIntoMemoryAt(state, argv[1], 0);
+	{
+		char *last = strrchr(argv[1], '/');
+		if (strcmp(last+1, "cpudiag.bin") == 0)
+		{
+			ReadFileIntoMemoryAt(state, argv[1], 0x100);
+
+			// Fix the first instruction to JMP 0x100
+			state->memory[0] = 0xc3;
+			state->memory[1] = 0;
+			state->memory[2] = 0x01;
+
+			// Fix the stack pointer from 0x06ad to 0x7ad
+			//  this 0x06 byte 112 in the code, which is
+			//  byte 112 + 0x100 = 368 in memory
+			state->memory[368] = 0x7;
+
+			// Skip DAA test
+			// state->memory[0x59c] = 0xc3;
+			// state->memory[0x59d] = 0xc2;
+			// state->memory[0x59e] = 0x05;
+		}
+		else
+			ReadFileIntoMemoryAt(state, argv[1], 0);
+	}
 	else
 	{
 		printf("Invalid Number of arguments\n");
