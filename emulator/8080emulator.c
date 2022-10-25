@@ -6,9 +6,6 @@
 #ifdef PRINTOPS
 #include "../disassembler/disassembler.h"
 #endif
-#ifdef CPUDIAG
-#include "string.h"
-#endif
 
 int Emulate8080Op(State8080 *state)
 {
@@ -1214,7 +1211,7 @@ int main(int argc, char **argv)
 	else if (argc == 2)
 	{
 		char *last = strrchr(argv[1], '/');
-		if (strcmp(last+1, "cpudiag.bin") == 0)
+		if (strcmp(last + 1, "cpudiag.bin") == 0)
 		{
 			ReadFileIntoMemoryAt(state, argv[1], 0x100);
 
