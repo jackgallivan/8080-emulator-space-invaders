@@ -33,10 +33,10 @@ jobs:
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
       run: make disassembler
 
-    - name: make 8080emulator
+    - name: make emulator
       if: ${{ steps.changes.outputs.emulator == 'true' }}
-      run: make 8080emulator
+      run: make emulator
 
-    - name: make emu_debug
+    - name: make emulator_debug
       if: ${{ steps.changes.outputs.emulator == 'true' || steps.changes.outputs.disassembler == 'true' }}
-      run: make 8080emulator_debug
+      run: make emulator_debug
