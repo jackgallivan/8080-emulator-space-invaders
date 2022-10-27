@@ -29,7 +29,7 @@ unsigned char cycles8080[256] = {
 	Sets parity flag when the input has an even parity and unsets it it has an odd parity
 	x: integer value
 	size: the size of the math instruction, in bits
-	return: the value of the parity flag: 0 if set, 1 if unset
+	return: the value of the parity flag: 1 if set, 0 if unset
 */
 int parity(int x, int size)
 {
