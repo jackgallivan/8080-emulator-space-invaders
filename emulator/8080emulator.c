@@ -11,7 +11,7 @@
 int Emulate8080Op(State8080 *state)
 {
 	// int cycles = 4; // TODO: unused var
-	unsigned char *opcode = &state->memory[state->pc];
+	uint8_t *opcode = &state->memory[state->pc];
 
 	uint8_t data8, reg_1, reg_2;
 	uint16_t data16, offset;
@@ -1088,7 +1088,7 @@ int Emulate8080Op(State8080 *state)
 
 		// PUSH PSW - Push processor status word
 		case 0xF5:     // PUSH PSW
-			Push(state, state->a, *(unsigned char *)&state->cc);
+			Push(state, state->a, *(uint8_t *)&state->cc);
 			break;
 
 		// POP rp - Pop top 2 bytes of stack to register pair
@@ -1104,7 +1104,7 @@ int Emulate8080Op(State8080 *state)
 
 		// POP PSW - Pop processor status word
 		case 0xF1:     // POP PSW
-			Pop(state, &state->a, (unsigned char *)&state->cc);
+			Pop(state, &state->a, (uint8_t *)&state->cc);
 			break;
 
 		// XTHL - Exchange data at the top of the stack with data in the HL register pair
@@ -1169,6 +1169,16 @@ int Emulate8080Op(State8080 *state)
 
 	// return cycles8080[*opcode];
 	return 0;
+}
+
+void GenerateInterrupt(State8080 *state, int interrupt_num)
+{
+	// RST interrupt_num
+	state->pc += 2;
+	Push(state, (state->pc >> 8), (state->pc & 0xff));
+	state->pc = 8 * interrupt_num;
+
+	state->int_enable = 0;
 }
 
 int main(int argc, char **argv)
