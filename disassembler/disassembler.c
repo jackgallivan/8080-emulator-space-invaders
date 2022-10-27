@@ -1,11 +1,11 @@
 #include "disassembler.h"
 
 /*
-	Disassemble8080Op:
+	disassemble_8080_op:
 	Disassemble and print the assembly instruction at the location in
-	*codebuffer with an offset of pc bytes.
+	*code_buffer with an offset of pc bytes.
 
-	*codebuffer: pointer to assembled 8080 binary code
+	*code_buffer: pointer to assembled 8080 binary code
 	pc: offset (in bytes) within the code
 
 	return: the size (in bytes) of the instruction pc refers to
@@ -18,10 +18,10 @@
 		For a correct interpretation of Space Invaders code, see
 		http://computerarcheology.com/Arcade/SpaceInvaders/Code.html
 */
-int Disassemble8080Op(unsigned char *codebuffer, int pc)
+int disassemble_8080_op(unsigned char *code_buffer, int pc)
 {
-	unsigned char *code = &codebuffer[pc];
-	int opbytes = 1;
+	unsigned char *code = &code_buffer[pc];
+	int op_bytes = 1;
 	printf("%04X ", pc);
 	switch (*code)
 	{
@@ -90,22 +90,22 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0x73: printf("MOV \tM,E      "); break;
 		case 0x74: printf("MOV \tM,H      "); break;
 		case 0x75: printf("MOV \tM,L      "); break;
-		case 0x3E: printf("MVI \tA,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x06: printf("MVI \tB,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x0E: printf("MVI \tC,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x16: printf("MVI \tD,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x1E: printf("MVI \tE,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x26: printf("MVI \tH,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x2E: printf("MVI \tL,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x36: printf("MVI \tM,0x%02X   ", code[1]); opbytes = 2; break;
-		case 0x01: printf("LXI \tB,0x%02X%02X ", code[2], code[1]); opbytes = 3; break;
-		case 0x11: printf("LXI \tD,0x%02X%02X ", code[2], code[1]); opbytes = 3; break;
-		case 0x21: printf("LXI \tH,0x%02X%02X ", code[2], code[1]); opbytes = 3; break;
-		case 0x31: printf("LXI \tSP,0x%02X%02X", code[2], code[1]); opbytes = 3; break;
-		case 0x3A: printf("LDA \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0x32: printf("STA \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0x2A: printf("LHLD\t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0x22: printf("SHLD\t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
+		case 0x3E: printf("MVI \tA,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x06: printf("MVI \tB,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x0E: printf("MVI \tC,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x16: printf("MVI \tD,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x1E: printf("MVI \tE,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x26: printf("MVI \tH,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x2E: printf("MVI \tL,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x36: printf("MVI \tM,0x%02X   ", code[1]); op_bytes = 2; break;
+		case 0x01: printf("LXI \tB,0x%02X%02X ", code[2], code[1]); op_bytes = 3; break;
+		case 0x11: printf("LXI \tD,0x%02X%02X ", code[2], code[1]); op_bytes = 3; break;
+		case 0x21: printf("LXI \tH,0x%02X%02X ", code[2], code[1]); op_bytes = 3; break;
+		case 0x31: printf("LXI \tSP,0x%02X%02X", code[2], code[1]); op_bytes = 3; break;
+		case 0x3A: printf("LDA \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0x32: printf("STA \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0x2A: printf("LHLD\t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0x22: printf("SHLD\t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
 		case 0x0A: printf("LDAX\tB        "); break;
 		case 0x1A: printf("LDAX\tD        "); break;
 		case 0x02: printf("STAX\tB        "); break;
@@ -122,7 +122,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0x84: printf("ADD \tH        "); break;
 		case 0x85: printf("ADD \tL        "); break;
 		case 0x86: printf("ADD \tM        "); break;
-		case 0xC6: printf("ADI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xC6: printf("ADI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0x8F: printf("ADC \tA        "); break;
 		case 0x88: printf("ADC \tB        "); break;
 		case 0x89: printf("ADC \tC        "); break;
@@ -131,7 +131,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0x8C: printf("ADC \tH        "); break;
 		case 0x8D: printf("ADC \tL        "); break;
 		case 0x8E: printf("ADC \tM        "); break;
-		case 0xCE: printf("ACI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xCE: printf("ACI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0x97: printf("SUB \tA        "); break;
 		case 0x90: printf("SUB \tB        "); break;
 		case 0x91: printf("SUB \tC        "); break;
@@ -140,7 +140,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0x94: printf("SUB \tH        "); break;
 		case 0x95: printf("SUB \tL        "); break;
 		case 0x96: printf("SUB \tM        "); break;
-		case 0xD6: printf("SUI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xD6: printf("SUI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0x9F: printf("SBB \tA        "); break;
 		case 0x98: printf("SBB \tB        "); break;
 		case 0x99: printf("SBB \tC        "); break;
@@ -149,7 +149,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0x9C: printf("SBB \tH        "); break;
 		case 0x9D: printf("SBB \tL        "); break;
 		case 0x9E: printf("SBB \tM        "); break;
-		case 0xDE: printf("SBI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xDE: printf("SBI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0x3C: printf("INR \tA        "); break;
 		case 0x04: printf("INR \tB        "); break;
 		case 0x0C: printf("INR \tC        "); break;
@@ -190,7 +190,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0xA4: printf("ANA \tH        "); break;
 		case 0xA5: printf("ANA \tL        "); break;
 		case 0xA6: printf("ANA \tM        "); break;
-		case 0xE6: printf("ANI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xE6: printf("ANI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0xAF: printf("XRA \tA        "); break;
 		case 0xA8: printf("XRA \tB        "); break;
 		case 0xA9: printf("XRA \tC        "); break;
@@ -199,7 +199,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0xAC: printf("XRA \tH        "); break;
 		case 0xAD: printf("XRA \tL        "); break;
 		case 0xAE: printf("XRA \tM        "); break;
-		case 0xEE: printf("XRI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xEE: printf("XRI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0xB7: printf("ORA \tA        "); break;
 		case 0xB0: printf("ORA \tB        "); break;
 		case 0xB1: printf("ORA \tC        "); break;
@@ -208,7 +208,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0xB4: printf("ORA \tH        "); break;
 		case 0xB5: printf("ORA \tL        "); break;
 		case 0xB6: printf("ORA \tM        "); break;
-		case 0xF6: printf("ORI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xF6: printf("ORI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0xBF: printf("CMP \tA        "); break;
 		case 0xB8: printf("CMP \tB        "); break;
 		case 0xB9: printf("CMP \tC        "); break;
@@ -217,7 +217,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0xBC: printf("CMP \tH        "); break;
 		case 0xBD: printf("CMP \tL        "); break;
 		case 0xBE: printf("CMP \tM        "); break;
-		case 0xFE: printf("CPI \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xFE: printf("CPI \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0x07: printf("RLC \t         "); break;
 		case 0x0F: printf("RRC \t         "); break;
 		case 0x17: printf("RAL \t         "); break;
@@ -228,24 +228,24 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 
 		/* BRANCH GROUP */
 
-		case 0xC3: printf("JMP \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xDA: printf("JC  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xD2: printf("JNC \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xCA: printf("JZ  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xC2: printf("JNZ \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xF2: printf("JP  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xFA: printf("JM  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xEA: printf("JPE \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xE2: printf("JPO \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xCD: printf("CALL\t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xDC: printf("CC  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xD4: printf("CNC \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xCC: printf("CZ  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xC4: printf("CNZ \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xF4: printf("CP  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xFC: printf("CM  \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xEC: printf("CPE \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
-		case 0xE4: printf("CPO \t0x%02X%02X   ", code[2], code[1]); opbytes = 3; break;
+		case 0xC3: printf("JMP \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xDA: printf("JC  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xD2: printf("JNC \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xCA: printf("JZ  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xC2: printf("JNZ \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xF2: printf("JP  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xFA: printf("JM  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xEA: printf("JPE \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xE2: printf("JPO \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xCD: printf("CALL\t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xDC: printf("CC  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xD4: printf("CNC \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xCC: printf("CZ  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xC4: printf("CNZ \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xF4: printf("CP  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xFC: printf("CM  \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xEC: printf("CPE \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
+		case 0xE4: printf("CPO \t0x%02X%02X   ", code[2], code[1]); op_bytes = 3; break;
 		case 0xC9: printf("RET \t         "); break;
 		case 0xD8: printf("RC  \t         "); break;
 		case 0xD0: printf("RNC \t         "); break;
@@ -277,8 +277,8 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 		case 0xF1: printf("POP \tPSW      "); break;
 		case 0xE3: printf("XTHL\t         "); break;
 		case 0xF9: printf("SPHL\t         "); break;
-		case 0xDB: printf("IN  \t0x%02X     ", code[1]); opbytes = 2; break;
-		case 0xD3: printf("OUT \t0x%02X     ", code[1]); opbytes = 2; break;
+		case 0xDB: printf("IN  \t0x%02X     ", code[1]); op_bytes = 2; break;
+		case 0xD3: printf("OUT \t0x%02X     ", code[1]); op_bytes = 2; break;
 		case 0xFB: printf("EI  \t         "); break;
 		case 0xF3: printf("DI  \t         "); break;
 		case 0x76: printf("HLT \t         "); break;
@@ -289,7 +289,7 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
 	printf("\n");
 #endif
 
-	return opbytes;
+	return op_bytes;
 }
 
 #ifndef PRINTOPS
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 
 	while (pc < fsize)
 	{
-		pc += Disassemble8080Op(buffer, pc);
+		pc += disassemble_8080_op(buffer, pc);
 	}
 	return 0;
 }
