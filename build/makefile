@@ -1,7 +1,7 @@
 # Phony targets
 .PHONY: all clean cleanobjs
 # Directories make should search
-VPATH = ../disassembler/:../emulator/
+VPATH = ../disassembler/:../emulator/:../machine
 # Vars for compiling
 CC = gcc
 CFLAGS = -fdiagnostics-color=always -Wall -std=c17 -g -O0
@@ -9,12 +9,13 @@ CFLAGS = -fdiagnostics-color=always -Wall -std=c17 -g -O0
 DEFFLAGS = -DPRINTOPS -DPRINTPSW
 COMPILE_DEBUG = $(COMPILE.c) $(DEFFLAGS) $(OUTPUT_OPTION) $<
 # All program targets
-PROGRAMS = disassembler emulator emulator_debug
+PROGRAMS = disassembler emulator emulator_debug machine
 # Object file names
 disassembler_OBJS = disassembler.o
 emulator_OBJS = emulator.o emu_utils.o
 emulator_debug_OBJS = emulator_debug.o emu_utils_debug.o disassembler_debug.o
-ALL_OBJS = $(disassembler_OBJS) $(emulator_OBJS) $(emulator_debug_OBJS)
+machine_OBJS = machine.o graphics.o
+ALL_OBJS = $(disassembler_OBJS) $(emulator_OBJS) $(emulator_debug_OBJS) $(machine_OBJS)
 
 # compile all programs
 all: $(PROGRAMS)
@@ -36,6 +37,9 @@ emu_utils_debug.o: emu_utils.c emu_utils.h
 	$(COMPILE_DEBUG)
 disassembler_debug.o: disassembler.c disassembler.h
 	$(COMPILE_DEBUG)
+
+# compile machine
+machine: $(machine_OBJS)
 
 # delete all created files
 clean: cleanobjs
