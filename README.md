@@ -1,6 +1,6 @@
 # CS 467 Capstone Project - <br> Build an Emulator and Run Space Invaders
 
-Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invaders ROM file and play the game.[^1]
+Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invaders ROM file and play the game [1].
 
 # Project Archive - Midpoint
 
@@ -55,7 +55,7 @@ $ ./emulator_debug
 ...
 ```
 
-Most of the first 30000 instructions are spent in a loop around 1A5F, where the program is copying data to the screen. About 50000 instructions in, the program will get stuck in this infinite loop[^2]:
+Most of the first 30000 instructions are spent in a loop around 1A5F, where the program is copying data to the screen. About 50000 instructions in, the program will get stuck in this infinite loop [2]:
 
 ```
 ...
@@ -97,6 +97,10 @@ The disassembler will disassemble the invaders ROM, printing each instruction, p
 
 **Note:** *chunks of data, where no opcodes are meant to exist, will still be interpreted as opcodes anyway, and will print as invalid instructions, which is expected.*
 
-[^1]: [EECS Project Portal - Build an Emulator and Run Space Invaders ROM](https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu)
+---
 
-[^2]: [Emulator 101 - Finishing the CPU emulator](http://www.emulator101.com/finishing-the-cpu-emulator.html)
+## References
+
+[1] W. Pfeill. "Build an Emulator and Run Space Invaders ROM." EECS Project Portal. https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu (accessed Oct. 31, 2022).
+
+[2] K.P. Miller. "Finishing the CPU emulator." Emulator 101. http://www.emulator101.com/finishing-the-cpu-emulator.html (accessed Oct. 31, 2022).
