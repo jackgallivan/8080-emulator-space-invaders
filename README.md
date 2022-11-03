@@ -12,7 +12,7 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
 ## Running the emulator, with debug output
 
-The emulator, without debug output enabled, will run continuously without any output, so this will compile the emulator with debug output. 
+The emulator, without debug output enabled, will run continuously without any output. This will compile the emulator *with debug output*.
 
 ### Compile Instructions
 
