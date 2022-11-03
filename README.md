@@ -101,6 +101,6 @@ The disassembler will disassemble the invaders ROM, printing each instruction, p
 
 ## References
 
-[1] W. Pfeill. "Build an Emulator and Run Space Invaders ROM." EECS Project Portal. https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu (accessed Oct. 31, 2022).
+[1] W. Pfeil, "Build an Emulator and Run Space Invaders ROM," *EECS Project Portal*. [Online]. Available: https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu. [Accessed: 31-Oct-2022].
 
-[2] K.P. Miller. "Finishing the CPU emulator." Emulator 101. http://www.emulator101.com/finishing-the-cpu-emulator.html (accessed Oct. 31, 2022).
+[2] K.P. Miller, "Finishing the CPU emulator," *Emulator 101*. [Online]. Available: http://www.emulator101.com/finishing-the-cpu-emulator.html. [Accessed: 31-Oct-2022].
