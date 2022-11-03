@@ -28,6 +28,8 @@ The emulator, without debug output enabled, will run continuously without any ou
    $ make emulator_debug
    ```
 
+### Run the program
+
 3. Run the created binary
 
    ```
@@ -81,7 +83,9 @@ I *don't* recommend waiting to see the output get there, as printing the debug o
    $ make disassembler
    ```
 
-3. Run the created binary, with the concatenated invaders ROM as an argument.
+### Run the program
+
+3. Run the created binary, with the concatenated invaders ROM file as an argument.
 
    ```
    $ ./disassembler ../invaders/invaders
