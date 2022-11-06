@@ -25,7 +25,7 @@ namespace space_invaders
         SDL_Window *window_;
         SDL_Surface *disp_;
         
-        void execute_cpu(long cyc);        
+        void execute_cpu();    // TODO: add cycles variable as a long
     };
 
 }
