@@ -13,7 +13,7 @@ namespace space_invaders
                 for (int j {0}; j < 8; ++j)
                 {	
                     int idx = (row - j) * SCREEN_WIDTH + col;
-                    if (memory_[i] & 1 << j)
+                    if (_cpu.memory[i] & 1 << j)  // TODO verify call to memory
                         pix[idx] = 0xFFFFFF;
                     else
                         pix[idx] = 0x000000;

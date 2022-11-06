@@ -1,4 +1,6 @@
 #include <SDL2/SDL.h>
+#include <array>  // for std::array
+#include <iostream>  // for std::cerr
 
 extern "C" {
     #include "../emulator/emulator.h"
