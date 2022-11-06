@@ -1,7 +1,3 @@
-extern "C"
-{
-#include "emulator/emulator.h"
-}
 #include "machine/machine.hpp"
 
 int main(int argc, char *argv[])

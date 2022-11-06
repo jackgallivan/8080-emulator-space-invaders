@@ -3,12 +3,12 @@
 namespace space_invaders
 {
     Machine::Machine()
-        : window_ 
+        : window_
         {
             SDL_CreateWindow("Space Invaders!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
             SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)
         },
-        disp_ 
+        disp_
         {
             SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)
         }
@@ -27,7 +27,7 @@ namespace space_invaders
 
     /*
         void Machine::execute_cpu()
-        
+
         Execute CPU operation and update state accordingly.
         TODO: implement cycles in CPU code and machine code
     */
