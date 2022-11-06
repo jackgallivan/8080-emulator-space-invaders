@@ -1,4 +1,4 @@
-#include "machine.hpp"
+#include "machine_utils.hpp"
 
 namespace space_invaders
 {
@@ -13,7 +13,7 @@ namespace space_invaders
                 for (int j {0}; j < 8; ++j)
                 {	
                     int idx = (row - j) * SCREEN_WIDTH + col;
-                    if (_cpu.memory[i] & 1 << j)  // TODO verify call to memory
+                    if (cpu_.memory[i] & 1 << j)
                         pix[idx] = 0xFFFFFF;
                     else
                         pix[idx] = 0x000000;
