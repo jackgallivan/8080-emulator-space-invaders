@@ -18,7 +18,7 @@ namespace space_invaders
         void update_screen();
         
         private:
-        State_8080 cpu_ {init_8080()};
+        State_8080 *cpu_ {init_8080()};
         
         bool done_ {false};
         std::array<std::array<std::array<uint8_t, 3>, SCREEN_WIDTH>, SCREEN_HEIGHT> screen_buf_ {};
