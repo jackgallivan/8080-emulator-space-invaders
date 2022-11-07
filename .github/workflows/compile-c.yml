@@ -21,7 +21,6 @@ jobs:
 
     - uses: msys2/setup-msys2@v2
       with:
-        release: true
         update: true
         msystem: MSYS
         install: >-
@@ -49,9 +48,16 @@ jobs:
       shell: pwsh
 
     - name: check env vars
+      continue-on-error: true
       run: |
-        cat $GITHUB_PATH
-        ls "${{runner.temp}}/msys64/mingw64/bin"
+        env
+        g++ --version
+
+    - name: check github_path
+      run: cat $GITHUB_PATH
+
+    - name: check mingw64 bin
+      run: ls "${{runner.temp}}/msys64/mingw64/bin"
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
