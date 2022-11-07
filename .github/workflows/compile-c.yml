@@ -13,8 +13,8 @@ defaults:
     shell: msys2 {0}
 
 env:
-  gcc: C:/msys64/mingw64/bin/gcc.exe
-  g++: C:/msys64/mingw64/bin/g++.exe
+  gcc: D:/a/_temp/msys64/mingw64/bin/gcc.exe
+  g++: D:/a/_temp/msys64/mingw64/bin/g++.exe
 
 jobs:
   build:
