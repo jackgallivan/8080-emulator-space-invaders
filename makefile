@@ -18,7 +18,7 @@ OBJS = main.o machine.o graphics.o emulator.o emu_utils.o
 
 # compile main
 main: $(OBJS)
-# $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 main.o: main.cpp machine.hpp emulator.h emu_utils.h
 machine.o: machine.cpp machine.hpp
 graphics.o: graphics.cpp machine.hpp
