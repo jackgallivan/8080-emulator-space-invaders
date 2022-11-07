@@ -44,20 +44,18 @@ jobs:
           main:
             - "main.cpp"
 
-    # - name: Put MSYS2_MinGW64 on PATH
-    #   run: echo "${{ runner.temp }}\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-    #   shell: pwsh
+    - name: Put MSYS2_MinGW64 on PATH
+      run: echo "${{ runner.temp }}\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: pwsh
 
     - name: check path
       run: echo $PATH
 
-    - name: check gcc version
+    - name: check gcc version/location
       continue-on-error: true
       run: |
-        D:/a/_temp/msys64/mingw64/bin/gcc.exe --version
-        D:/a/_temp/msys64/mingw64/bin/gcc --version
-        gcc.exe --version
         gcc --version
+        which gcc
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
