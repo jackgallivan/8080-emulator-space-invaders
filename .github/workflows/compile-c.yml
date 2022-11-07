@@ -53,8 +53,8 @@ jobs:
     - name: check gcc version
       continue-on-error: true
       run: |
-        ${{runner.temp}}/msys64/mingw64/bin/gcc --version
-        g++ --version
+        ${{runner.temp}}/msys64/mingw64/bin/gcc.exe --version
+        g++.exe --version
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
