@@ -53,7 +53,7 @@ jobs:
     - name: check gcc version
       continue-on-error: true
       run: |
-        ${{runner.temp}}/msys64/mingw64/bin/gcc.exe --version
+        D:/a/_temp/msys64/mingw64/bin/gcc.exe --version
         g++.exe --version
 
     - name: make disassembler
