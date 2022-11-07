@@ -20,6 +20,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        release: false
         msystem: MSYS
         update: true
         install: >-
@@ -40,6 +41,7 @@ jobs:
             - main.cpp
     - name: Put MSYS2_MinGW64 on PATH
       run: echo "{{ runner.temp }}/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: pwsh
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
