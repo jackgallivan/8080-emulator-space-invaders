@@ -10,8 +10,7 @@ on:
 
 defaults:
   run:
-    shell: pwsh
-    working-directory: build
+    shell: msys2 {0}
 
 jobs:
   build:
@@ -19,7 +18,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        path-type: inherit
+        msystem: MSYS
+        install: >-
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-SDL2
+
     - uses: actions/checkout@v3
+
     - uses: dorny/paths-filter@v2
       id: changes
       with:
@@ -28,15 +39,30 @@ jobs:
             - "disassembler/**"
           emulator:
             - "emulator/**"
+          machine:
+            - "machine/**"
+          main:
+            - "main.cpp"
+
+    - name: Put MSYS2_MinGW64 on PATH
+      run: echo "${{ runner.temp }}\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      shell: pwsh
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
       run: make disassembler
+      working-directory: disassembler
 
     - name: make emulator
       if: ${{ steps.changes.outputs.emulator == 'true' }}
       run: make emulator
+      working-directory: emulator
 
     - name: make emulator_debug
       if: ${{ steps.changes.outputs.emulator == 'true' || steps.changes.outputs.disassembler == 'true' }}
       run: make emulator_debug
+      working-directory: emulator
+
+    - name: make main
+      if: ${{ steps.changes.outputs.emulator == 'true' || steps.changes.outputs.machine == 'true' || steps.changes.outputs.main == 'true' }}
+      run: make main
