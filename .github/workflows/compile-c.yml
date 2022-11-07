@@ -39,7 +39,7 @@ jobs:
           main:
             - main.cpp
     - name: setup environment
-      run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
+      run: echo "D:\a\_temp\msys64\mingw64\bin" >> $GITHUB_PATH
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
