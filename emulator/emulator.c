@@ -1181,6 +1181,7 @@ void generate_interrupt(State_8080 *state, int interrupt_num)
 	state->int_enable = 0;
 }
 
+#ifdef MAIN_EMULATOR
 int main(int argc, char **argv)
 {
 	int done = 0;
@@ -1208,3 +1209,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+#endif
