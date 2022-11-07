@@ -22,6 +22,7 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         update: true
+        path-type: inherit
         msystem: MSYS
         install: >-
           base-devel
@@ -50,16 +51,13 @@ jobs:
     - name: check path
       run: echo $PATH
 
-    - name: check GITHUB_PATH location and contents
-      run: |
-        echo $GITHUB_PATH
-        cat $GITHUB_PATH
-
     - name: check gcc version
       continue-on-error: true
       run: |
         D:/a/_temp/msys64/mingw64/bin/gcc.exe --version
-        g++.exe --version
+        D:/a/_temp/msys64/mingw64/bin/gcc --version
+        gcc.exe --version
+        gcc --version
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
