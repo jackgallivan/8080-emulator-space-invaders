@@ -12,6 +12,10 @@ defaults:
   run:
     shell: msys2 {0}
 
+env:
+  gcc: C:/msys64/mingw64/bin/gcc.exe
+  g++: C:/msys64/mingw64/bin/g++.exe
+
 jobs:
   build:
 
@@ -20,6 +24,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        msystem: MSYS
         update: true
         install: >-
           base-devel
