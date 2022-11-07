@@ -12,10 +12,6 @@ defaults:
   run:
     shell: msys2 {0}
 
-env:
-  gcc: D:/a/_temp/msys64/mingw64/bin/gcc.exe
-  g++: D:/a/_temp/msys64/mingw64/bin/g++.exe
-
 jobs:
   build:
 
@@ -42,6 +38,8 @@ jobs:
             - "machine/**"
           main:
             - main.cpp
+    - name: setup environment
+      run: echo "D:/a/_temp/msys64/mingw64/bin" >> $GITHUB_PATH
 
     - name: make disassembler
       if: ${{ steps.changes.outputs.disassembler == 'true' }}
