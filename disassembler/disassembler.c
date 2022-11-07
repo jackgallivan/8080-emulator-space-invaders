@@ -292,7 +292,7 @@ int disassemble_8080_op(unsigned char *code_buffer, int pc)
 	return op_bytes;
 }
 
-#ifndef PRINTOPS
+#ifdef MAIN_DISASSEMBLER
 int main(int argc, char **argv)
 {
 	FILE *f = fopen(argv[1], "rb");
