@@ -10,7 +10,6 @@
 
 int emulate_8080_op(State_8080 *state)
 {
-	// int cycles = 4; // TODO: unused var
 	uint8_t *opcode = &state->memory[state->pc];
 
 	uint8_t data8, reg_1, reg_2;
@@ -1168,7 +1167,7 @@ int emulate_8080_op(State_8080 *state)
 #endif
 
 	// return cycles_8080[*opcode];
-	return 0;
+	return cycles_8080[*opcode];
 }
 
 void generate_interrupt(State_8080 *state, int interrupt_num)
@@ -1184,8 +1183,6 @@ void generate_interrupt(State_8080 *state, int interrupt_num)
 #ifdef MAIN_EMULATOR
 int main(int argc, char **argv)
 {
-	int done = 0;
-	// int vblankcycles = 0; // TODO: unused var
 	State_8080 *state = init_8080();
 	if (argc == 1)
 	{
@@ -1202,9 +1199,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	while (done == 0)
+	while (1)
 	{
-		done = emulate_8080_op(state);
+		emulate_8080_op(state);
 	}
 
 	return 0;
