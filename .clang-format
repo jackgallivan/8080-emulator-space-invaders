@@ -21,3 +21,4 @@ SortIncludes: CaseInsensitive
 AlignAfterOpenBracket: true
 AlignConsecutiveMacros : true
 ReflowComments: false
+NamespaceIndentation: Inner
