@@ -1,6 +1,7 @@
 #include <array>        // for std::array
 #include <iostream>     // for std::cerr
 #include <SDL2/SDL.h>
+#include "audio.hpp"
 
 extern "C"
 {
