@@ -60,7 +60,7 @@ void Machine::out(uint8_t port, uint8_t value)
 			break;
 		
 		case 3:
-			sound1_ = val;
+			sound_port_3 = val;
 			break;
 
 		case 4:
@@ -69,7 +69,7 @@ void Machine::out(uint8_t port, uint8_t value)
 			break;
 		
 		case 5:
-			sound2_ = val;
+			sound_port_5 = val;
 			break;
 
 		default:
