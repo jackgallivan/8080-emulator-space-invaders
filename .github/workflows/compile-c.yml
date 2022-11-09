@@ -3,10 +3,8 @@ name: C Compiler Error-Check
 on:
   push:
     branches: [ "main" ]
-    paths: [ "disassembler/**", "emulator/**" ]
   pull_request:
     branches: [ "main" ]
-    paths: [ "disassembler/**", "emulator/**" ]
 
 defaults:
   run:
