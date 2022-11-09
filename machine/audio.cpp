@@ -6,11 +6,11 @@ Wav::Wav(const std::string &s)
 	std::string path {s + ".wav"};
 	auto success {SDL_LoadWAV(path.c_str(), &spec_, &buf_, &len_)};
 	if (success == NULL)
-		SDL_Log("Failed to load WAV: %s", path.c_str(), SDL_GetError());
+		SDL_Log("Failed to load WAV %s: %s\n", path.c_str(), SDL_GetError());
 	SDL_AudioSpec obtained; // format obtained
 	dev_ = SDL_OpenAudioDevice(nullptr, 0, &spec_, &obtained, 0);
 	if (dev_ == 0)
-		SDL_Log("Failed to open audio: %s", SDL_GetError());
+		SDL_Log("Failed to open audio: %s\n", SDL_GetError());
 }
 
 Wav::~Wav()
@@ -47,7 +47,7 @@ void Machine::play_sound()
 		{
 			// TODO: UFO not on screen (stop loop 0.wav)
 		}
-		}
+
 		// Player shot
 		if ( (sound_port_3 & 0x2) && !(last_sound_3 & 0x2) )
 			sounds_[1].play();
