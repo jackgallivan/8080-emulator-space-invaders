@@ -43,7 +43,7 @@ void Machine::play_sound()
 		{
 			// TODO: UFO on screen (loop 0.wav)
 		}
-		else if ( !(out_port3 & 0x1) && (last_out_port3 & 0x1))    
+		else if ( !(sound_port_3 & 0x1) && (last_sound_3 & 0x1))    
 		{
 			// TODO: UFO not on screen (stop loop 0.wav)
 		}
