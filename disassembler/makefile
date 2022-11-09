@@ -8,6 +8,9 @@ PROGRAMS = disassembler
 # Object file names
 OBJS = disassembler.o
 
+# make binaries then discard object files
+all: $(PROGRAMS) cleanobjs
+
 # compile disassembler
 disassembler: $(disassembler_OBJS)
 disassembler.o: disassembler.c disassembler.h
@@ -15,3 +18,6 @@ disassembler.o: disassembler.c disassembler.h
 # delete all created files
 clean:
 	rm -f $(PROGRAMS) $(OBJS)
+
+cleanobjs:
+	rm -f $(OBJS)

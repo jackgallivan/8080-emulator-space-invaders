@@ -16,6 +16,9 @@ PROGRAMS = main
 # Object file names
 OBJS = main.o machine.o graphics.o io.o emulator.o emu_utils.o
 
+# make binaries then discard object files
+all: $(PROGRAMS) cleanobjs
+
 # compile main
 main: $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
@@ -29,3 +32,6 @@ emu_utils.o: emu_utils.c emu_utils.h
 # delete all created files
 clean:
 	rm -f $(PROGRAMS) $(OBJS)
+
+cleanobjs:
+	rm -f $(OBJS)
