@@ -110,10 +110,10 @@ void Machine::run()
  */
 void Machine::load_program()
 {
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.h", 0);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.g", 0x800);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.f", 0x1000);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.e", 0x1800);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.h", 0);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.g", 0x800);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.f", 0x1000);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.e", 0x1800);
 }
 
 }
