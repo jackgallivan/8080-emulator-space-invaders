@@ -9,7 +9,18 @@ Machine::Machine()
 	  },
 	  disp_{
 		  SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0),
-	  }
+	  },
+	  sounds_{
+		  Wav("audio/ufo_low"),
+		  Wav("audio/shoot"),
+		  Wav("audio/explosion"),
+		  Wav("audio/invader_killed"),
+		  Wav("audio/fleet1"),
+		  Wav("audio/fleet2"),
+		  Wav("audio/fleet3"),
+		  Wav("audio/fleet4"),
+		  Wav("audio/ufo_high")
+	}
 {
 	if (!window_)
 	{
