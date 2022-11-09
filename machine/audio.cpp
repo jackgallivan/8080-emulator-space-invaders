@@ -1,4 +1,5 @@
 #include "audio.hpp"
+#include "machine.hpp"
 #include <SDL.h>
 
 Wav::Wav(const std::string &s)
