@@ -9,7 +9,19 @@ Machine::Machine()
 	  },
 	  disp_{
 		  SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0),
-	  }
+	  },
+	  sounds_{
+		  Wav("audio/0"),  // ufo moving (looping sound)
+		  Wav("audio/1"),  // player shoot
+		  Wav("audio/2"),  // player explode
+		  Wav("audio/3"),  // invader explode
+		  Wav("audio/4"),  // invader move 1
+		  Wav("audio/5"),  // invader move 2
+		  Wav("audio/6"),  // invader move 3
+		  Wav("audio/7"),  // invader move 4
+		  Wav("audio/8"),  // ufo hit
+		  Wav("audio/9")   // extra life
+	}
 {
 	if (!window_)
 	{
