@@ -1,6 +1,5 @@
 #include "audio.hpp"
 #include "machine.hpp"
-#include <SDL.h>
 
 Wav::Wav(const std::string &s)
 	: spec_ {}, buf_ {nullptr}, len_ {0}
