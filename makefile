@@ -19,11 +19,11 @@ OBJS = main.o machine.o graphics.o audio.o io.o emulator.o emu_utils.o
 # compile main
 main: $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
-main.o: main.cpp machine.hpp emulator.h emu_utils.h
-machine.o: machine.cpp machine.hpp
+main.o: main.cpp machine.hpp
+machine.o: machine.cpp machine.hpp audio.hpp emulator.h emu_utils.h
 graphics.o: graphics.cpp machine.hpp
-audio.o: audio.cpp audio.hpp machine.hpp
-io.o: io.cpp machine.hpp audio.hpp
+audio.o: audio.cpp machine.hpp
+io.o: io.cpp machine.hpp
 emulator.o: emulator.c emulator.h emu_utils.h
 emu_utils.o: emu_utils.c emu_utils.h
 
