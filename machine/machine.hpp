@@ -34,6 +34,8 @@ private:
     uint8_t shift0{0};
     uint8_t shift1{0};
     uint8_t shift_offset{0};
+	uint8_t sound1_ {0}, last_sound1_ {0};
+	uint8_t sound2_ {0}, last_sound2_ {0};
 
 	bool done_{false};
 	std::array<std::array<std::array<uint8_t, 3>, SCREEN_WIDTH>, SCREEN_HEIGHT> screen_buf_{};
