@@ -41,7 +41,7 @@ private:
 	std::array<std::array<std::array<uint8_t, 3>, SCREEN_WIDTH>, SCREEN_HEIGHT> screen_buf_{};
 	SDL_Window *window_;
 	SDL_Surface *disp_;
-	std::array<Wav, 9> sounds_;
+	std::array<Wav, 10> sounds_;
 
 	void execute_cpu(uint64_t);
 };
