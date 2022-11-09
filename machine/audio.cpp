@@ -31,3 +31,35 @@ void Wav::loop()
 {
 	
 }
+
+namespace space_invaders
+{
+	
+void Machine::play_sound()
+{
+	if (sound1_ != last_sound1_) // bit changed
+	{
+		if ( (sound1_ & 0x2) && !(last_sound1_ & 0x2) )
+			sounds_[1].play();
+        if ( (sound1_ & 0x4) && !(last_sound1_ & 0x4) )
+            sounds_[2].play();
+        if ( (sound1_ & 0x8) && !(last_sound1_ & 0x8) )
+			sounds_[3].play();
+		last_sound1_ = sound1_;
+	}
+	if (sound2_ != last_sound2_)
+	{
+		if ( (sound2_ & 0x1) && !(last_sound2_ & 0x1) )
+			sounds_[4].play();
+		if ( (sound2_ & 0x2) && !(last_sound2_ & 0x2) )
+			sounds_[5].play();
+		if ( (sound2_ & 0x4) && !(last_sound2_ & 0x4) )
+			sounds_[6].play();
+		if ( (sound2_ & 0x8) && !(last_sound2_ & 0x8) )
+			sounds_[7].play();
+		if ( (sound2_ & 0x10) && !(last_sound2_ & 0x10) )
+			sounds_[8].play();
+		last_sound2_ = sound2_;
+	}
+}
+}
