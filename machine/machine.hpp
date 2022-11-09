@@ -45,6 +45,7 @@ private:
 	std::array<Wav, 10> sounds_;
 
 	void execute_cpu(uint64_t);
+	void play_sound();
 };
 
 }
