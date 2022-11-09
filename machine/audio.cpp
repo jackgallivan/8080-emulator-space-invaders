@@ -91,3 +91,4 @@ void Machine::play_sound()
 		last_sound_5 = sound_port_5;
 	}
 }
+}
