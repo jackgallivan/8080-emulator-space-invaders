@@ -11,17 +11,17 @@ Machine::Machine()
 		  SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0),
 	  },
 	  sounds_{
-		  Wav("audio/0"),  // ufo moving (looping sound)
-		  Wav("audio/1"),  // player shoot
-		  Wav("audio/2"),  // player explode
-		  Wav("audio/3"),  // invader explode
-		  Wav("audio/4"),  // invader move 1
-		  Wav("audio/5"),  // invader move 2
-		  Wav("audio/6"),  // invader move 3
-		  Wav("audio/7"),  // invader move 4
-		  Wav("audio/8"),  // ufo hit
-		  Wav("audio/9")   // extra life
-	}
+		  Wav("audio/0"),     // ufo moving (looping sound)
+		  Wav("audio/1"),     // player shoot
+		  Wav("audio/2"),     // player explode
+		  Wav("audio/3"),     // invader explode
+		  Wav("audio/4"),     // invader move 1
+		  Wav("audio/5"),     // invader move 2
+		  Wav("audio/6"),     // invader move 3
+		  Wav("audio/7"),     // invader move 4
+		  Wav("audio/8"),     // ufo hit
+		  Wav("audio/9")      // extra life
+	  }
 {
 	if (!window_)
 	{
@@ -122,10 +122,10 @@ void Machine::run()
  */
 void Machine::load_program()
 {
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.h", 0);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.g", 0x800);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.f", 0x1000);
-	read_file_into_memory_at(cpu_, (char *)"../invaders/invaders.e", 0x1800);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.h", 0);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.g", 0x800);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.f", 0x1000);
+	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.e", 0x1800);
 }
 
 }

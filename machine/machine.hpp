@@ -1,7 +1,7 @@
+#include "audio.hpp"
 #include <array>        // for std::array
 #include <iostream>     // for std::cerr
 #include <SDL2/SDL.h>
-#include "audio.hpp"
 
 extern "C"
 {
@@ -32,11 +32,11 @@ private:
 
 	uint8_t in_port1{0};
 	uint8_t in_port2{0};
-    uint8_t shift0{0};
-    uint8_t shift1{0};
-    uint8_t shift_offset{0};
-	uint8_t sound_port_3 {0}, last_sound_3 {0};
-	uint8_t sound_port_5 {0}, last_sound_5 {0};
+	uint8_t shift0{0};
+	uint8_t shift1{0};
+	uint8_t shift_offset{0};
+	uint8_t sound_port_3{0}, last_sound_3{0};
+	uint8_t sound_port_5{0}, last_sound_5{0};
 
 	bool done_{false};
 	std::array<std::array<std::array<uint8_t, 3>, SCREEN_WIDTH>, SCREEN_HEIGHT> screen_buf_{};

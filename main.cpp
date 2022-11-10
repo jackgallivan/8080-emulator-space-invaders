@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
 		throw;
 	}
-	space_invaders::Machine cabinet {};
+	space_invaders::Machine cabinet{};
 	cabinet.load_program();
 	cabinet.run();
 	SDL_Quit();

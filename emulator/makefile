@@ -17,8 +17,8 @@ emulator_OBJS = emulator.o emu_utils.o
 emulator_debug_OBJS = emulator_debug.o emu_utils_debug.o disassembler_debug.o
 ALL_OBJS = $(disassembler_OBJS) $(emulator_OBJS) $(emulator_debug_OBJS)
 
-# compile all programs
-all: $(PROGRAMS)
+# make binaries then discard object files
+all: $(PROGRAMS) cleanobjs
 
 # compile emulator
 emulator: $(emulator_OBJS)
@@ -37,3 +37,6 @@ disassembler_debug.o: disassembler.c disassembler.h
 # delete all created files
 clean:
 	rm -f $(PROGRAMS) $(ALL_OBJS)
+
+cleanobjs:
+	rm -f $(ALL_OBJS)
