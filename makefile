@@ -25,7 +25,7 @@ main: $(OBJS)
 main.o: main.cpp machine.hpp
 machine.o: machine.cpp machine.hpp audio.hpp emulator.h emu_utils.h
 graphics.o: graphics.cpp machine.hpp
-audio.o: audio.cpp machine.hpp
+audio.o: audio.cpp machine.hpp audio.hpp
 io.o: io.cpp machine.hpp
 emulator.o: emulator.c emulator.h emu_utils.h
 emu_utils.o: emu_utils.c emu_utils.h

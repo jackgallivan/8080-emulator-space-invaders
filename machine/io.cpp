@@ -58,7 +58,7 @@ void Machine::out(uint8_t port, uint8_t value)
 		case 2:
 			shift_offset = value & 0x7;
 			break;
-		
+
 		case 3:
 			sound_port_3 = value;
 			break;
@@ -67,7 +67,7 @@ void Machine::out(uint8_t port, uint8_t value)
 			shift0 = shift1;
 			shift1 = value;
 			break;
-		
+
 		case 5:
 			sound_port_5 = value;
 			break;

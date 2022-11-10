@@ -1,17 +1,17 @@
-#include <SDL2/SDL.h>
 #include <cstdint>
+#include <SDL2/SDL.h>
 #include <string>
 
 class Wav
 {
-	public:
+public:
 	explicit Wav(const std::string &s);
 	~Wav();
-	
+
 	bool play();
 	void loop();
-	
-	private:
+
+private:
 	SDL_AudioSpec spec_;
 	SDL_AudioDeviceID dev_;
 	uint8_t *buf_;
