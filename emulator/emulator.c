@@ -1173,7 +1173,6 @@ int emulate_8080_op(State_8080 *state)
 void generate_interrupt(State_8080 *state, int interrupt_num)
 {
 	// RST interrupt_num
-	state->pc += 2;
 	push(state, (state->pc >> 8), (state->pc & 0xff));
 	state->pc = 8 * interrupt_num;
 

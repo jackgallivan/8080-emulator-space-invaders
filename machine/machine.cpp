@@ -68,13 +68,15 @@ void Machine::execute_cpu(uint64_t cyc_to_run)
  */
 void Machine::run()
 {
-	constexpr double tic = 1000.0 / 60.0;
-	constexpr double cycles_per_tic = 2000 * tic;
+	constexpr double tic = 1000.0 / 60.0;      // ms per tic (1/60 second)
+	constexpr int cycles_per_ms = 2000;        // assume CPU is 2 MHz
+	constexpr double half_tic = tic / 2.0;     // ms between interrupts
 
 	SDL_Event e;
+
 	uint64_t now_tic = SDL_GetTicks64();
 	uint64_t last_tic = now_tic;
-	uint64_t next_int_tic = last_tic + (cycles_per_tic / 2);
+	uint64_t next_int_tic = last_tic + tic;
 	uint8_t next_int_num = 1;
 
 	while (!done_)
@@ -84,21 +86,13 @@ void Machine::run()
 		// check if it's time for an interrupt
 		if ((cpu_->int_enable) && (now_tic > next_int_tic))
 		{
-			if (next_int_num == 1)
-			{
-				generate_interrupt(cpu_, 1);
-				next_int_num = 2;
-			}
-			else
-			{
-				generate_interrupt(cpu_, 2);
-				next_int_num = 1;
-			}
-			next_int_tic = now_tic + cycles_per_tic / 4;
+			generate_interrupt(cpu_, next_int_num);
+			next_int_num ^= 3;                     // switch between 1 and 2
+			next_int_tic = now_tic + half_tic;     // next interrupt
 		}
 
 		// execute instructions until we catch up
-		execute_cpu(2 * (now_tic - last_tic));
+		execute_cpu((now_tic - last_tic) * cycles_per_ms);
 		last_tic = now_tic;
 
 		// process any queued events
