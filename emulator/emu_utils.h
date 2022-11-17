@@ -53,3 +53,4 @@ void pop(State_8080 *state, uint8_t *high, uint8_t *low);
 void flags_zsp(State_8080 *state, uint8_t value);
 void read_file_into_memory_at(State_8080 *state, char *filename, uint32_t offset);
 State_8080 *init_8080(void);
+void free_8080(State_8080 *state);
