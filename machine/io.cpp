@@ -39,7 +39,7 @@ uint8_t Machine::in(uint8_t port)
 			break;
 
 		default:
-			break;
+			throw std::runtime_error(std::string("Error: invalid in port ") + std::string(1, (char)port));
 	}
 	return a;
 }

@@ -5,7 +5,9 @@ namespace space_invaders
 
 void Machine::update_screen()
 {
-	uint32_t *pix{(uint32_t *)disp_->pixels};
+	if (SDL_MUSTLOCK(surface_))
+		throw std::runtime_error("Error! Surface must be locked before reading/writing");
+	uint32_t *pix{(uint32_t *)surface_->pixels};
 	int i{0x2400};     // start of video ram
 	for (int col{0}; col < SCREEN_WIDTH; ++col)
 	{
@@ -20,12 +22,17 @@ void Machine::update_screen()
 					pix[idx] = 0x000000;
 			}
 			++i;
+			if (i > 0x4000)
+				throw std::runtime_error("Error! Pointer past initialized memory");
 		}
 	}
 	SDL_Surface *winsurf = SDL_GetWindowSurface(window_);
-	SDL_BlitScaled(disp_, NULL, winsurf, NULL);
+	if (!winsurf)
+		throw std::runtime_error(std::string("SDL_GetWindowSurface failed! SDL Error: ") + SDL_GetError());
+	if (SDL_BlitScaled(surface_, NULL, winsurf, NULL))
+		throw std::runtime_error(std::string("SDL_BlitScaled failed! SDL Error: ") + SDL_GetError());
 	if (SDL_UpdateWindowSurface(window_))
-		std::cerr << SDL_GetError();
+		throw std::runtime_error(std::string("SDL_UpdateWindowSurface failed! SDL Error: ") + SDL_GetError());
 }
 
 }
