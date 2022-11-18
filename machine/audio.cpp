@@ -4,13 +4,12 @@ Wav::Wav(const std::string &s)
 	: spec_{}, buf_{nullptr}, len_{0}
 {
 	std::string path{s + ".wav"};
-	auto success{SDL_LoadWAV(path.c_str(), &spec_, &buf_, &len_)};
-	if (success == NULL)
-		SDL_Log("Failed to load WAV %s: %s\n", path.c_str(), SDL_GetError());
+	if (SDL_LoadWAV(path.c_str(), &spec_, &buf_, &len_) == NULL)
+		throw std::runtime_error(std::string("SDL_LoadWAV failed! SDL Error: ") + SDL_GetError());
 	SDL_AudioSpec obtained;     // format obtained
 	dev_ = SDL_OpenAudioDevice(nullptr, 0, &spec_, &obtained, 0);
 	if (dev_ == 0)
-		SDL_Log("Failed to open audio: %s\n", SDL_GetError());
+		throw std::runtime_error(std::string("SDL_OpenAudioDevice failed! SDL Error: ") + SDL_GetError());
 }
 
 Wav::~Wav()
@@ -19,11 +18,11 @@ Wav::~Wav()
 	SDL_FreeWAV(buf_);
 }
 
-bool Wav::play()
+void Wav::play()
 {
-	int success{SDL_QueueAudio(dev_, buf_, len_)};
+	if (SDL_QueueAudio(dev_, buf_, len_) < 0)
+		throw std::runtime_error(std::string("SDL_QueueAudio failed! SDL Error: ") + SDL_GetError());
 	SDL_PauseAudioDevice(dev_, 0);
-	return success;
 }
 
 void Wav::loop()

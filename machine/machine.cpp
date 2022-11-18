@@ -4,12 +4,11 @@ namespace space_invaders
 {
 
 Machine::Machine()
-	: window_{
-		  SDL_CreateWindow("Space Invaders!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE),
-	  },
-	  disp_{
-		  SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0),
-	  },
+	: cpu_{init_8080()},
+	  window_{
+		  SDL_CreateWindow("Space Invaders!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)},
+	  surface_{
+		  SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)},
 	  sounds_{
 		  Wav("audio/0"),     // ufo moving (looping sound)
 		  Wav("audio/1"),     // player shoot
@@ -23,16 +22,12 @@ Machine::Machine()
 		  Wav("audio/9")      // extra life
 	  }
 {
+	if (!cpu_)
+		throw std::runtime_error("Could not create CPU!");
 	if (!window_)
-	{
-		std::cerr << "Could not create SDL_Window!\n";
-		throw;
-	}
-	if (!disp_)
-	{
-		std::cerr << "Could not create SDL_Surface!\n";
-		throw;
-	}
+		throw std::runtime_error(std::string("SDL could not create window! SDL Error: ") + SDL_GetError());
+	if (!surface_)
+		throw std::runtime_error(std::string("SDL could not create surface! SDL Error: ") + SDL_GetError());
 }
 
 /**
@@ -78,37 +73,46 @@ void Machine::run()
 	uint64_t last_tic = now_tic;
 	uint64_t next_int_tic = last_tic + tic;
 	uint8_t next_int_num = 1;
-
-	while (!done_)
+	try
 	{
-		now_tic = SDL_GetTicks64();
-
-		// check if it's time for an interrupt
-		if ((cpu_->int_enable) && (now_tic > next_int_tic))
+		while (running_)
 		{
-			generate_interrupt(cpu_, next_int_num);
-			next_int_num ^= 3;                     // switch between 1 and 2
-			next_int_tic = now_tic + half_tic;     // next interrupt
+			now_tic = SDL_GetTicks64();
+
+			// check if it's time for an interrupt
+			if ((cpu_->int_enable) && (now_tic > next_int_tic))
+			{
+				generate_interrupt(cpu_, next_int_num);
+				next_int_num ^= 3;                     // switch between 1 and 2
+				next_int_tic = now_tic + half_tic;     // next interrupt
+			}
+
+			// execute instructions until we catch up
+			execute_cpu((now_tic - last_tic) * cycles_per_ms);
+			last_tic = now_tic;
+
+			// process any queued events
+			while (SDL_PollEvent(&e))
+			{
+				if (e.type == SDL_QUIT)
+					running_ = false;
+				else if (e.type == SDL_KEYDOWN)
+					key_down(e.key.keysym.sym);
+				else if (e.type == SDL_KEYUP)
+					key_up(e.key.keysym.sym);
+			}
+
+			// update screen
+			update_screen();
 		}
-
-		// execute instructions until we catch up
-		execute_cpu((now_tic - last_tic) * cycles_per_ms);
-		last_tic = now_tic;
-
-		// process any queued events
-		while (SDL_PollEvent(&e))
-		{
-			if (e.type == SDL_QUIT)
-				done_ = true;
-			else if (e.type == SDL_KEYDOWN)
-				key_down(e.key.keysym.sym);
-			else if (e.type == SDL_KEYUP)
-				key_up(e.key.keysym.sym);
-		}
-
-		// update screen
-		update_screen();
 	}
+	catch(const std::exception& e)
+	{
+		free_machine();
+		throw e;
+	}
+
+	free_machine();
 }
 
 /**
@@ -120,6 +124,15 @@ void Machine::load_program()
 	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.g", 0x800);
 	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.f", 0x1000);
 	read_file_into_memory_at(cpu_, (char *)"invaders/invaders.e", 0x1800);
+}
+
+void Machine::free_machine()
+{
+	free_8080(cpu_);                // free cpu_
+	SDL_DestroyWindow(window_);     // free window_
+	SDL_FreeSurface(surface_);      // free surface_
+	for (Wav sound : sounds_)       // free sounds_
+		sound.~Wav();
 }
 
 }

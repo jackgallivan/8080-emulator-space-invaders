@@ -204,3 +204,9 @@ State_8080 *init_8080(void)
 	state->memory = malloc(0x10000);     //16K
 	return state;
 }
+
+void free_8080(State_8080 *state)
+{
+	free(state->memory);
+	free(state);
+}

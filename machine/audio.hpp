@@ -8,7 +8,7 @@ public:
 	explicit Wav(const std::string &s);
 	~Wav();
 
-	bool play();
+	void play();
 	void loop();
 
 private:
