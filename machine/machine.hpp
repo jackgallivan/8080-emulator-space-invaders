@@ -21,11 +21,6 @@ public:
 	void run();
 	void load_program();
 
-	uint8_t in(uint8_t);
-	void out(uint8_t, uint8_t);
-	void key_down(SDL_Keycode);
-	void key_up(SDL_Keycode);
-
 private:
 	State_8080 *cpu_;
 	SDL_Window *window_;
@@ -35,17 +30,16 @@ private:
 	bool running_{true};
 
 	// I/O ports
-	uint8_t in_port1{0};
-	uint8_t in_port2{0};
-	uint8_t shift0{0};
-	uint8_t shift1{0};
-	uint8_t shift_offset{0};
+	uint8_t in_port1{0}, in_port2{0};
+	uint8_t shift0{0}, shift1{0}, shift_offset{0};
 	uint8_t sound_port_3{0}, last_sound_3{0};
 	uint8_t sound_port_5{0}, last_sound_5{0};
 
-	// std::array<std::array<std::array<uint8_t, 3>, SCREEN_WIDTH>, SCREEN_HEIGHT> screen_buf_{};
-
-	void execute_cpu(uint64_t);
+	void execute_cpu(uint64_t cyc_to_run);
+	uint8_t in(uint8_t port);
+	void out(uint8_t port, uint8_t write_val);
+	void key_down(SDL_Keycode keycode);
+	void key_up(SDL_Keycode keycode);
 	void update_screen();
 	void play_sound();
 	void free_machine();

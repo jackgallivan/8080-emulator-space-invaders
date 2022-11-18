@@ -21,27 +21,27 @@ namespace space_invaders
  */
 uint8_t Machine::in(uint8_t port)
 {
-	uint8_t a;
+	uint8_t read_val;
 	uint16_t v;
 	switch (port)
 	{
 		case 1:
-			a = in_port1;
+			read_val = in_port1;
 			break;
 
 		case 2:
-			a = in_port2;
+			read_val = in_port2;
 			break;
 
 		case 3:
 			v = (shift1 << 8) | shift0;
-			a = ((v >> (8 - shift_offset)) & 0xFF);
+			read_val = ((v >> (8 - shift_offset)) & 0xFF);
 			break;
 
 		default:
 			throw std::runtime_error(std::string("Error: invalid in port ") + std::string(1, (char)port));
 	}
-	return a;
+	return read_val;
 }
 
 /**
@@ -49,27 +49,27 @@ uint8_t Machine::in(uint8_t port)
  * to the output port and value specified
  *
  * @param port the output port to write to
- * @param value the value to write
+ * @param write_val the value to write
  */
-void Machine::out(uint8_t port, uint8_t value)
+void Machine::out(uint8_t port, uint8_t write_val)
 {
 	switch (port)
 	{
 		case 2:
-			shift_offset = value & 0x7;
+			shift_offset = write_val & 0x7;
 			break;
 
 		case 3:
-			sound_port_3 = value;
+			sound_port_3 = write_val;
 			break;
 
 		case 4:
 			shift0 = shift1;
-			shift1 = value;
+			shift1 = write_val;
 			break;
 
 		case 5:
-			sound_port_5 = value;
+			sound_port_5 = write_val;
 			break;
 
 		default:
@@ -81,11 +81,11 @@ void Machine::out(uint8_t port, uint8_t value)
 /**
  * Set input port bits for pressed key
  *
- * @param k the SDL virtual key being pressed
+ * @param keycode the SDL virtual key being pressed
  */
-void Machine::key_down(SDL_Keycode k)
+void Machine::key_down(SDL_Keycode keycode)
 {
-	switch (k)
+	switch (keycode)
 	{
 		case KEY_COIN:     // Insert coin
 			in_port1 |= 1;
@@ -131,11 +131,11 @@ void Machine::key_down(SDL_Keycode k)
 /**
  * Unset input port bits for released key
  *
- * @param k the SDL virtual key being released
+ * @param keycode the SDL virtual key being released
  */
-void Machine::key_up(SDL_Keycode k)
+void Machine::key_up(SDL_Keycode keycode)
 {
-	switch (k)
+	switch (keycode)
 	{
 		case KEY_COIN:     // Insert coin
 			in_port1 &= ~1;
