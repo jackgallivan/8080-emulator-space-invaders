@@ -16,6 +16,8 @@ int emulate_8080_op(State_8080 *state)
 	uint16_t data16, offset;
 	uint32_t data32, reg_pair_1, reg_pair_2;
 
+	uint8_t alt_cycles = 0;
+
 #ifdef PRINTOPS
 	disassemble_8080_op(state->memory, state->pc);
 #ifndef PRINTPSW
@@ -913,7 +915,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xD4:     // CNC addr
 			if (state->cc.cy == 0)
@@ -923,7 +928,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xCC:     // CZ addr
 			if (state->cc.z == 1)
@@ -933,7 +941,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xC4:     // CNZ addr
 			if (state->cc.z == 0)
@@ -943,7 +954,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xF4:     // CP addr
 			if (state->cc.s == 0)
@@ -953,7 +967,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xFC:     // CM addr
 			if (state->cc.s == 1)
@@ -963,7 +980,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xEC:     // CPE addr
 			if (state->cc.p == 1)
@@ -973,7 +993,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 		case 0xE4:     // CPO addr
 			if (state->cc.p == 0)
@@ -983,7 +1006,10 @@ int emulate_8080_op(State_8080 *state)
 				state->pc = (opcode[2] << 8) | opcode[1];
 			}
 			else
+			{
 				state->pc += 2;
+				alt_cycles = 11;
+			}
 			break;
 
 		// RET - Return
@@ -995,34 +1021,50 @@ int emulate_8080_op(State_8080 *state)
 		case 0xD8:     // RC
 			if (state->cc.cy == 1)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xD0:     // RNC
 			if (state->cc.cy == 0)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xC8:     // RZ
 			if (state->cc.z == 1)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xC0:     // RNZ
 			if (state->cc.z == 0)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xF0:     // RP
 			if (state->cc.s == 0)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xF8:     // RM
 			if (state->cc.s == 1)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xE8:     // RPE
 			if (state->cc.p == 1)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 		case 0xE0:     // RPO
 			if (state->cc.p == 0)
 				pop(state, (uint8_t *)&state->pc + 1, (uint8_t *)&state->pc);
+			else
+				alt_cycles = 5;
 			break;
 
 		// RST n - Restart
@@ -1167,6 +1209,8 @@ int emulate_8080_op(State_8080 *state)
 #endif
 
 	// return cycles_8080[*opcode];
+	if (alt_cycles)
+		return alt_cycles;
 	return cycles_8080[*opcode];
 }
 
