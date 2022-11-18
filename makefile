@@ -9,7 +9,7 @@ CFLAGS = -fdiagnostics-color=always -Wall -std=c17 -g -O0
 # Vars for compiling C++
 CXX = g++
 CXXFLAGS = -fdiagnostics-color=always -Wall -std=c++17 -g -O0
-LDLIBS = -lmingw32 -lSDL2main -lSDL2
+LDLIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_Mixer
 
 # All program targets
 PROGRAMS = main

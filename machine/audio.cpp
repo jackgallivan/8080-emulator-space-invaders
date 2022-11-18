@@ -29,8 +29,35 @@ void Wav::play()
 		throw std::runtime_error(std::string("SDL_QueueAudio failed! SDL Error: ") + SDL_GetError());
 }
 
-void Wav::loop()
+Mixer_Wav::Mixer_Wav(const std::string &s)
 {
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+		throw std::runtime_error(Mix_GetError());
+
+	std::string path{s + ".wav"};
+	sound_ = Mix_LoadWAV(path.c_str());
+	if(sound_ == NULL)
+		throw std::runtime_error(std::string("Mix_LoadWAV failed! Mix Error: ") + Mix_GetError());
+}
+
+/**
+ * Close the object's audio device and free chunk
+ */
+Mixer_Wav::~Mixer_Wav()
+{
+	Mix_FreeChunk(sound_);
+	Mix_CloseAudio();
+	Mix_Quit();
+}
+
+void Mixer_Wav::start_loop()
+{
+	Mix_PlayChannel(-1, sound_, -1);
+}
+
+void Mixer_Wav::stop_loop()
+{
+	Mix_HaltChannel(-1);
 }
 
 namespace space_invaders
@@ -46,11 +73,11 @@ void Machine::play_sound()
 		// UFO on screen
 		if ((sound_port_3 & 0x1) && !(last_sound_3 & 0x1))
 		{
-			// TODO: UFO on screen (loop 0.wav)
+			ufo_.start_loop();
 		}
 		else if (!(sound_port_3 & 0x1) && (last_sound_3 & 0x1))
 		{
-			// TODO: UFO not on screen (stop loop 0.wav)
+			ufo_.stop_loop();
 		}
 
 		// Player shot

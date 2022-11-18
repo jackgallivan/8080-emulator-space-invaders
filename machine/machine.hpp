@@ -25,6 +25,7 @@ private:
 	State_8080 *cpu_;
 	SDL_Window *window_;
 	SDL_Surface *surface_;
+	Mixer_Wav ufo_;
 	std::array<Wav, 10> sounds_;
 
 	bool running_{true};
