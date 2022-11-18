@@ -98,7 +98,7 @@ void Machine::play_sound()
 		if ((sound_port_3 & 0x8) && !(last_sound_3 & 0x8))
 			sounds_[2].play();
 
-		// Extra life (8.wav)
+		// Extra life (9.wav)
 		if ((sound_port_3 & 0x10) && !(last_sound_3 & 0x10))
 			sounds_[8].play();
 
