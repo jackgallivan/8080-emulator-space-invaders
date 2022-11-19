@@ -7,23 +7,26 @@ Machine::Machine()
 	: cpu_{init_8080()}
 	, window_{SDL_CreateWindow(SCREEN_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)}
 	, surface_{SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)}
-	, ufo_{Mixer_Wav("audio/0")}     // ufo on screen (looping sound)
+	, audio_{Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 4096)}
 	, sounds_{
-		  Wav("audio/1"),            // player shoot
-		  Wav("audio/2"),            // player explode
-		  Wav("audio/3"),            // invader explode
-		  Wav("audio/4"),            // invader move 1
-		  Wav("audio/5"),            // invader move 2
-		  Wav("audio/6"),            // invader move 3
-		  Wav("audio/7"),            // invader move 4
-		  Wav("audio/8"),            // ufo hit
-		  Wav("audio/9")             // extra life
-	  }
+		  Mixer_Wav("audio/0"),            // ufo on screen (looping sound)
+		  Mixer_Wav("audio/1"),            // player shoot
+		  Mixer_Wav("audio/2"),            // player explode
+		  Mixer_Wav("audio/3"),            // invader explode
+		  Mixer_Wav("audio/4"),            // invader move 1
+		  Mixer_Wav("audio/5"),            // invader move 2
+		  Mixer_Wav("audio/6"),            // invader move 3
+		  Mixer_Wav("audio/7"),            // invader move 4
+		  Mixer_Wav("audio/8"),            // ufo hit
+		  Mixer_Wav("audio/9")             // extra life
+	}
 {
 	if (!surface_)
 		throw std::runtime_error(std::string("SDL could not create surface! SDL Error: ") + SDL_GetError());
 	if (!window_)
 		throw std::runtime_error(std::string("SDL could not create window! SDL Error: ") + SDL_GetError());
+	if (audio_ == -1)
+		throw std::runtime_error(std::string("SDL_Mixer could not open default audio device! Mix Error: ") + Mix_GetError());
 }
 
 /**
@@ -119,12 +122,13 @@ void Machine::load_program()
  */
 void Machine::free_machine()
 {
-	ufo_.~Mixer_Wav();              // free ufo_
-	for (Wav sound : sounds_)       // free sounds_
-		sound.~Wav();
-	SDL_FreeSurface(surface_);      // free surface_
-	SDL_DestroyWindow(window_);     // free window_
-	free_8080(cpu_);                // free cpu_
+	for (Mixer_Wav sound : sounds_)     // free sounds_
+		sound.~Mixer_Wav();
+	Mix_CloseAudio();
+	Mix_Quit();
+	SDL_FreeSurface(surface_);          // free surface_
+	SDL_DestroyWindow(window_);         // free window_
+	free_8080(cpu_);                    // free cpu_
 }
 
 }
