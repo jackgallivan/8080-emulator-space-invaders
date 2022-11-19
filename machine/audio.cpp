@@ -32,9 +32,6 @@ void Wav::play()
 
 Mixer_Wav::Mixer_Wav(const std::string &s)
 {
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
-		throw std::runtime_error(Mix_GetError());
-
 	std::string path{s + ".wav"};
 	sound_ = Mix_LoadWAV(path.c_str());
 	if(sound_ == NULL)
@@ -47,8 +44,15 @@ Mixer_Wav::Mixer_Wav(const std::string &s)
 Mixer_Wav::~Mixer_Wav()
 {
 	Mix_FreeChunk(sound_);
-	Mix_CloseAudio();
-	Mix_Quit();
+}
+
+/**
+ * Play sound bite in an available channel once.
+*/
+void Mixer_Wav::play()
+{
+	if(Mix_PlayChannel(-1, sound_, 0) == -1)
+		throw std::runtime_error(std::string("Mix_PlayChannel failed! Mix Error: ") + Mix_GetError());
 }
 
 /**
@@ -82,25 +86,25 @@ void Machine::play_sound()
 	{
 		// UFO sounds (0.wav)
 		if ((sound_port_3 & 0x1) && !(last_sound_3 & 0x1))
-			ufo_.start_loop();
+			sounds_[0].start_loop();
 		else if (!(sound_port_3 & 0x1) && (last_sound_3 & 0x1))
-			ufo_.stop_loop();
+			sounds_[0].stop_loop();
 
 		// Player shot (1.wav)
 		if ((sound_port_3 & 0x2) && !(last_sound_3 & 0x2))
-			sounds_[0].play();
+			sounds_[1].play();
 
 		// Player blown up (2.wav)
 		if ((sound_port_3 & 0x4) && !(last_sound_3 & 0x4))
-			sounds_[1].play();
+			sounds_[2].play();
 
 		// Invader blown up (3.wav)
 		if ((sound_port_3 & 0x8) && !(last_sound_3 & 0x8))
-			sounds_[2].play();
+			sounds_[3].play();
 
 		// Extra life (9.wav)
 		if ((sound_port_3 & 0x10) && !(last_sound_3 & 0x10))
-			sounds_[8].play();
+			sounds_[9].play();
 
 		last_sound_3 = sound_port_3;
 	}
@@ -109,23 +113,23 @@ void Machine::play_sound()
 	{
 		// Invader movement sound 1 (4.wav)
 		if ((sound_port_5 & 0x1) && !(last_sound_5 & 0x1))
-			sounds_[3].play();
+			sounds_[4].play();
 
 		// Invader movement sound 2 (5.wav)
 		if ((sound_port_5 & 0x2) && !(last_sound_5 & 0x2))
-			sounds_[4].play();
+			sounds_[5].play();
 
 		// Invader movement sound 3 (6.wav)
 		if ((sound_port_5 & 0x4) && !(last_sound_5 & 0x4))
-			sounds_[5].play();
+			sounds_[6].play();
 
 		// Invader movement sound 4 (7.wav)
 		if ((sound_port_5 & 0x8) && !(last_sound_5 & 0x8))
-			sounds_[6].play();
+			sounds_[7].play();
 
 		// UFO hit (8.wav)
 		if ((sound_port_5 & 0x10) && !(last_sound_5 & 0x10))
-			sounds_[7].play();
+			sounds_[8].play();
 
 		last_sound_5 = sound_port_5;
 	}

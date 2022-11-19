@@ -24,6 +24,7 @@ public:
 	explicit Mixer_Wav(const std::string &s);
 	~Mixer_Wav();
 
+	void play();
 	void start_loop();
 	void stop_loop();
 
