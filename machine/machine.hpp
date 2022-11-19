@@ -10,6 +10,7 @@ extern "C"
 
 #define SCREEN_HEIGHT 256
 #define SCREEN_WIDTH  224
+#define SCREEN_TITLE "Space Invaders"
 
 namespace space_invaders
 {
@@ -25,7 +26,8 @@ private:
 	State_8080 *cpu_;
 	SDL_Window *window_;
 	SDL_Surface *surface_;
-	std::array<Wav, 10> sounds_;
+	Mixer_Wav ufo_;
+	std::array<Wav, 9> sounds_;
 
 	bool running_{true};
 

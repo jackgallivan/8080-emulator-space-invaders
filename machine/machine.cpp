@@ -5,19 +5,19 @@ namespace space_invaders
 
 Machine::Machine()
 	: cpu_{init_8080()}
-	, window_{SDL_CreateWindow("Space Invaders!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)}
+	, window_{SDL_CreateWindow(SCREEN_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)}
 	, surface_{SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)}
+	, ufo_{Mixer_Wav("audio/0")}     // ufo on screen (looping sound)
 	, sounds_{
-		  Wav("audio/0"),     // ufo moving (looping sound)
-		  Wav("audio/1"),     // player shoot
-		  Wav("audio/2"),     // player explode
-		  Wav("audio/3"),     // invader explode
-		  Wav("audio/4"),     // invader move 1
-		  Wav("audio/5"),     // invader move 2
-		  Wav("audio/6"),     // invader move 3
-		  Wav("audio/7"),     // invader move 4
-		  Wav("audio/8"),     // ufo hit
-		  Wav("audio/9")      // extra life
+		  Wav("audio/1"),            // player shoot
+		  Wav("audio/2"),            // player explode
+		  Wav("audio/3"),            // invader explode
+		  Wav("audio/4"),            // invader move 1
+		  Wav("audio/5"),            // invader move 2
+		  Wav("audio/6"),            // invader move 3
+		  Wav("audio/7"),            // invader move 4
+		  Wav("audio/8"),            // ufo hit
+		  Wav("audio/9")             // extra life
 	  }
 {
 	if (!surface_)
@@ -119,7 +119,8 @@ void Machine::load_program()
  */
 void Machine::free_machine()
 {
-	for (Wav sound : sounds_)     // free sounds_
+	ufo_.~Mixer_Wav();              // free ufo_
+	for (Wav sound : sounds_)       // free sounds_
 		sound.~Wav();
 	SDL_FreeSurface(surface_);      // free surface_
 	SDL_DestroyWindow(window_);     // free window_
