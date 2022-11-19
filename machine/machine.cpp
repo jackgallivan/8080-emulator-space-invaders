@@ -7,7 +7,7 @@ Machine::Machine()
 	: cpu_{init_8080()}
 	, window_{SDL_CreateWindow(SCREEN_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE)}
 	, surface_{SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0)}
-	, audio_{Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)}
+	, audio_{Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 4096)}
 	, sounds_{
 		  Mixer_Wav("audio/0"),            // ufo on screen (looping sound)
 		  Mixer_Wav("audio/1"),            // player shoot
@@ -25,6 +25,8 @@ Machine::Machine()
 		throw std::runtime_error(std::string("SDL could not create surface! SDL Error: ") + SDL_GetError());
 	if (!window_)
 		throw std::runtime_error(std::string("SDL could not create window! SDL Error: ") + SDL_GetError());
+	if (audio_ == -1)
+		throw std::runtime_error(std::string("SDL_Mixer could not open default audio device! Mix Error: ") + Mix_GetError());
 }
 
 /**
