@@ -101,7 +101,7 @@ void write_mem(State_8080 *state, uint16_t address, uint8_t value)
 	}
 	else
 	{
-		printf("\n\tERROR: INVALID WRITE LOCATION");
+		//printf("\n\tERROR: INVALID WRITE LOCATION");
 		return;
 	}
 }
