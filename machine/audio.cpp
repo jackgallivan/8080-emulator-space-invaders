@@ -1,35 +1,5 @@
 #include "machine.hpp"
 
-Wav::Wav(const std::string &s)
-{
-	std::string path{s + ".wav"};
-	if (!SDL_LoadWAV(path.c_str(), &spec_, &buf_, &len_))
-		throw std::runtime_error(std::string("SDL_LoadWAV failed! SDL Error: ") + SDL_GetError());
-
-	dev_ = SDL_OpenAudioDevice(nullptr, 0, &spec_, nullptr, 0);
-	if (!dev_)
-		throw std::runtime_error(std::string("SDL_OpenAudioDevice failed! SDL Error: ") + SDL_GetError());
-	SDL_PauseAudioDevice(dev_, 0);
-}
-
-/**
- * Close the object's audio device and free its audio buffer
- */
-Wav::~Wav()
-{
-	SDL_CloseAudioDevice(dev_);
-	SDL_FreeWAV(buf_);
-}
-
-/**
- * Queue audio to play once
- */
-void Wav::play()
-{
-	if (SDL_QueueAudio(dev_, buf_, len_))
-		throw std::runtime_error(std::string("SDL_QueueAudio failed! SDL Error: ") + SDL_GetError());
-}
-
 Mixer_Wav::Mixer_Wav(const std::string &s)
 {
 	std::string path{s + ".wav"};
@@ -39,7 +9,7 @@ Mixer_Wav::Mixer_Wav(const std::string &s)
 }
 
 /**
- * Close the object's audio device and free chunk
+ * Free sound_
  */
 Mixer_Wav::~Mixer_Wav()
 {
@@ -47,7 +17,7 @@ Mixer_Wav::~Mixer_Wav()
 }
 
 /**
- * Play sound bite in an available channel once.
+ * Play sound in an available channel once.
 */
 void Mixer_Wav::play()
 {
@@ -56,7 +26,7 @@ void Mixer_Wav::play()
 }
 
 /**
- * Play sound bite in an available channel in a loop.
+ * Play sound in an available channel in a loop.
  * Audio loop stops when stop_loop() is called.
 */
 void Mixer_Wav::start_loop()
