@@ -4,16 +4,20 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
 # Project Archive - Final
 
-## System Requirements
+## System Requirements*
 1.
 2.
 3.
+
+*Note that all necessary .dll files, audio files and ROM files are included in the program folder.
 
 ## Installation Instructions
 
 1. Download the zip file for the [current release]().
 2. Extract the contents of the the zip file to a location on your PC.
-3. Run main.exe to start the program. All necessary .dll files, audio files and ROM files are included in the folder.
+3. Run "main.exe" inside the invaders-win folder to start the program.
+
+
 
 ## How to Play
 The goal of the game is to shoot down all the invaders before they either shoot your ship down or before they reach the bottom of the screen. The more invaders you shoot down, the faster the game becomes.
