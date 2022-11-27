@@ -68,7 +68,7 @@ void Machine::run()
 
 	SDL_Event event;
 
-	uint64_t now_tic = SDL_GetTicks64();
+	uint64_t now_tic = SDL_GetTicks();
 	uint64_t last_tic = now_tic;
 	uint64_t next_int_tic = last_tic + tic;
 	uint8_t next_int_num = 1;
@@ -87,7 +87,7 @@ void Machine::run()
 		}
 
 		// check if it's time for an interrupt
-		if ((cpu_->int_enable) && (SDL_GetTicks64() > next_int_tic))
+		if ((cpu_->int_enable) && (SDL_GetTicks() > next_int_tic))
 		{
 			if (next_int_num == 1)
 				update_screen();     // draw screen every other interrupt (60Hz)
@@ -97,7 +97,7 @@ void Machine::run()
 			next_int_tic += half_tic;     // next interrupt
 		}
 
-		now_tic = SDL_GetTicks64();
+		now_tic = SDL_GetTicks();
 
 		// execute instructions until we catch up
 		execute_cpu((now_tic - last_tic) * cycles_per_ms);
