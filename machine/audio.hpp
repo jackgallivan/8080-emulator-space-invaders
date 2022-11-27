@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <string>
-#include <SDL2/SDL_Mixer.h>     // for looping ufo audio
+#include <SDL2/SDL_mixer.h>     // for looping ufo audio
 
 class Mixer_Wav
 {
