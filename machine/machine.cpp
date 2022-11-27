@@ -122,8 +122,8 @@ void Machine::load_program()
  */
 void Machine::free_machine()
 {
-	for (int i = 0; i < 10; i++)        // free sounds_
-		sounds_[i].~Mixer_Wav();
+	for (Mixer_Wav sound : sounds_)     // free sounds_
+		sound.~Mixer_Wav();
 	Mix_CloseAudio();
 	Mix_Quit();
 	SDL_FreeSurface(surface_);          // free surface_
