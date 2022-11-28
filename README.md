@@ -10,8 +10,8 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
 ## Installation / Run Instructions
 
-### Using the latest GitHub release*
-1. Download the zip file for the [current release]() for your respective operating system.
+### Using the latest GitHub release
+1. Download the zip file for the [current release]() for your respective operating system. Each release version contains all the necessary dependencies, audio files, and ROM files.
 2. Extract the contents of the the zip file to a location on your PC.
 3. Open a terminal window in the project root directory and run the executable/binary inside the program folder to start the emulator.
 
@@ -20,8 +20,6 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
    ```
 
    If on Windows, you may opt to double click the executable.
-
-*Note that all necessary dependencies, audio files and ROM files are included in the release folders for both versions.
 
 ### Compiling from the source code
 #### Prerequisites
