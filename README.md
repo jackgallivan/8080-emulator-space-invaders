@@ -98,5 +98,3 @@ The goal of the game is to get a high score by shooting down all the invaders be
 ## References
 
 [1] W. Pfeil, "Build an Emulator and Run Space Invaders ROM," *EECS Project Portal*. [Online]. Available: https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu. [Accessed: 31-Oct-2022].
-
-[2] K.P. Miller, "Finishing the CPU emulator," *Emulator 101*. [Online]. Available: http://www.emulator101.com/finishing-the-cpu-emulator.html. [Accessed: 31-Oct-2022].
