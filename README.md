@@ -10,47 +10,68 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
 ## Installation / Run Instructions
 
-### Using the latest GitHub release
-1. Download the zip file for the [current release]() for your respective operating system. Each release version contains all the necessary dependencies, audio files, and ROM files.
+### Using the latest GitHub release (Windows only)
+1. Download the zip file for the [current release](). The release contains all the necessary dependencies (.dll), audio files, and ROM files.
 2. Extract the contents of the the zip file to a location on your PC.
-3. Open a terminal window in the project root directory and run the executable/binary inside the program folder to start the emulator.
+3. Open a terminal window in the project root directory and run the executable inside the program folder to start the emulator.
 
    ```
    $ ./main
    ```
-
-   If on Windows, you may opt to double click the executable.
 
 ### Compiling from the source code
 #### Prerequisites
 1. GCC 
 2. G++
 3. GNU Make
-4. [SDL2](https://wiki.libsdl.org/SDL2/Installation)
-5. [SDL_mixer](https://github.com/libsdl-org/SDL_mixer)
-6. [MSYS2](https://www.msys2.org/) (For Windows Development only)
+4. [Mingw-w64 through MSYS2](https://www.msys2.org/) (for Windows development only)
+5. [SDL2](https://wiki.libsdl.org/SDL2/Installation)
+6. [SDL_mixer](https://github.com/libsdl-org/SDL_mixer)
 7. [Source Code]() (contains the necessary audio files and ROM files)
 
 #### Steps
-1. Open a terminal in the project's root directory
+1. Install the prerequisite packages to your operating system. 
+   
+   - On Linux:
+      - Install the libsdl2-dev and libsdl2-mixer-dev packages:
 
-2. Compile the program.
+         ```
+         $ sudo apt-get update
+         $ sudo apt-get libsdl2-dev
+         $ sudo apt-get libsdl2-mixer-dev
+         ```
+      - Install all other packages, if they are not already included by default. 
+
+   - On Windows:
+      - Install MSYS2 on your PC.
+      - Make sure your system environment variables have the following Paths:
+         - {msys64 program folder location}\mingw64\bin
+         - {msys64 program folder location}\usr\bin
+
+      - Install SDL2, SDL_mixer, and other development packages using the following commands on MSYS2:
+         ```
+         pacman -S mingw-w64-x86_64-toolchain
+         pacman -S mingw-w64-x86_64-SDL2
+         pacman -S mingw-w64-x86_64-SDL2_mixer
+         ```
+
+2. Once all the dependencies have been installed, go to the source code and open a terminal/command line window in the project's root directory.
+
+3. Compile the program using make.
 
    ```
    $ make
    ```
 
-3. Run the created binary/executable.
+4. Run the created binary/executable.
 
    ```
    $ ./main
    ```
 
-   If on Windows, you may opt to double click the executable file.
-
 ## Expected Output
 
-When you run the program either from the release version or by compiling from the source code, the result is a window opening with Space Invaders loaded on the screen. At this point the player can control the game using the mapped [keyboard controls](#controls). To close out of the game, the player must close out of the game window.
+When you run the program, whether it be from the release version or by compiling from the source code, the result is a window opening with Space Invaders loaded on the screen. At this point the player can control the game using the mapped [keyboard controls](#controls). To close out of the game, the player must close out of the game window.
 
 #### Space Invaders - Title Screen <br>
 ![Space Invaders title screen](/img/game-screenshot-0.png?raw=true "Screenshot - Title Screen") <br>
