@@ -43,14 +43,13 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 #### Steps
 1. Install the prerequisite packages to your operating system. 
    
-   - On Linux:
-      - Install the libsdl2-dev and libsdl2-mixer-dev packages:
+   - On Linux: Install the libsdl2-dev and libsdl2-mixer-dev packages:
 
-         ```
-         $ sudo apt-get update
-         $ sudo apt-get install libsdl2-dev
-         $ sudo apt-get install libsdl2-mixer-dev
-         ```
+      ```
+      $ sudo apt-get update
+      $ sudo apt-get install libsdl2-dev
+      $ sudo apt-get install libsdl2-mixer-dev
+      ```
 
    - On Windows:
       - Install MSYS2 on your PC.
