@@ -70,6 +70,13 @@ The goal of the game is to shoot down all the invaders before they either shoot 
 | Left Arrow   | Move Left  |
 | Right Arrow  | Move Right |
 
+### Screenshots
+
+![Space Invaders title screen](/img/game-screenshot-0.png?raw=true "Screenshot - Title Screen")
+![Space Invaders in-game screenshot](/img/game-screenshot-1.png?raw=true "Screenshot - Gameplay #1")
+![Space Invaders in-game screenshot](/img/game-screenshot-2.png?raw=true "Screenshot - Gameplay #2")
+![Space Invaders in-game screenshot](/img/game-screenshot-3.png?raw=true "Screenshot - Gameplay #3")
+
 ---
 
 ## References
