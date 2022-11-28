@@ -4,7 +4,7 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
 # Project Archive - Final
 
-## Tested Platforms
+## Platforms
 1. Windows
 2. Linux
 
