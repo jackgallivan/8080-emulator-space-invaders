@@ -81,7 +81,9 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 ## Expected Output
 
 When you run the program, whether it be from the release version or by compiling from the source code, the result is a window opening with Space Invaders loaded on the screen. At this point the player can control the game using the mapped [keyboard controls](#controls). To close out of the game, the player must close out of the game window.
+
 <br>
+
 #### Space Invaders - Title Screen <br>
 ![Space Invaders title screen](/img/game-screenshot-0.png?raw=true "Screenshot - Title Screen") <br>
 
@@ -93,6 +95,7 @@ When you run the program, whether it be from the release version or by compiling
 ![Space Invaders in-game screenshot](/img/game-screenshot-2.png?raw=true "Screenshot - Gameplay #2") <br>
 
 <br>
+
 ## How to Play
 The goal of the game is to get a high score by shooting down all the invaders before they either shoot your ship down or before they reach the bottom of the screen. The more invaders you shoot down, the more difficult the game becomes. The game ends when you run out of ships and get a "Game Over".
 
