@@ -95,6 +95,7 @@ When you run the program, whether it be from the release version or by compiling
 ![Space Invaders in-game screenshot](/img/game-screenshot-2.png?raw=true "Screenshot - Gameplay #2") <br>
 
 <br>
+<br>
 
 ## How to Play
 The goal of the game is to get a high score by shooting down all the invaders before they either shoot your ship down or before they reach the bottom of the screen. The more invaders you shoot down, the more difficult the game becomes. The game ends when you run out of ships and get a "Game Over".
