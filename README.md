@@ -53,7 +53,7 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 
    - On Windows:
       - Install MSYS2 on your PC.
-      - Make sure your system environment variables have the following Paths:
+      - Make sure your system environment variables include the following paths:
          - {MSYS2 program folder location}\mingw64\bin
          - {MSYS2 program folder location}\usr\bin
 
