@@ -208,5 +208,7 @@ State_8080 *init_8080(void)
 void free_8080(State_8080 *state)
 {
 	free(state->memory);
+	state->memory = NULL;
 	free(state);
+	state = NULL;
 }
