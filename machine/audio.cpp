@@ -14,6 +14,7 @@ Mixer_Wav::Mixer_Wav(const std::string &s)
 Mixer_Wav::~Mixer_Wav()
 {
 	Mix_FreeChunk(sound_);
+	sound_ = nullptr;
 }
 
 /**
