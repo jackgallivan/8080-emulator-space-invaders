@@ -1229,10 +1229,10 @@ int main(int argc, char **argv)
 	State_8080 *state = init_8080();
 	if (argc == 1)
 	{
-		read_file_into_memory_at(state, "../rom/invaders.h", 0);
-		read_file_into_memory_at(state, "../rom/invaders.g", 0x800);
-		read_file_into_memory_at(state, "../rom/invaders.f", 0x1000);
-		read_file_into_memory_at(state, "../rom/invaders.e", 0x1800);
+		read_file_into_memory_at(state, "../invaders/invaders.h", 0);
+		read_file_into_memory_at(state, "../invaders/invaders.g", 0x800);
+		read_file_into_memory_at(state, "../invaders/invaders.f", 0x1000);
+		read_file_into_memory_at(state, "../invaders/invaders.e", 0x1800);
 	}
 	else if (argc == 2)
 		read_file_into_memory_at(state, argv[1], 0);

@@ -16,7 +16,7 @@ else
 endif
 
 # All program targets
-PROGRAMS = invaders
+PROGRAMS = main
 # Object file names
 OBJS = main.o machine.o graphics.o audio.o io.o emulator.o emu_utils.o
 
@@ -24,7 +24,7 @@ OBJS = main.o machine.o graphics.o audio.o io.o emulator.o emu_utils.o
 all: $(PROGRAMS) cleanobjs
 
 # compile main
-invaders: $(OBJS)
+main: $(OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 main.o: main.cpp machine.hpp
 machine.o: machine.cpp machine.hpp audio.hpp emulator.h emu_utils.h
