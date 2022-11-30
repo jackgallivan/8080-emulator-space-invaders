@@ -15,13 +15,13 @@ Goal: Create an Intel 8080 emulator in C/C++ that can disassemble a Space Invade
 4. [Mingw-w64 through MSYS2](https://www.msys2.org/) (for Windows development only)
 5. [SDL2](https://wiki.libsdl.org/SDL2/Installation)
 6. [SDL_mixer](https://github.com/libsdl-org/SDL_mixer)
-7. [Source Code]() (contains the necessary audio files and ROM files)
+7. [Source Code](https://github.com/jackgallivan/8080-emulator-space-invaders/releases/tag/v1.0) (contains the necessary audio files and ROM files) [2]
 
 ## Installation / Run Instructions
 
 ### Using the latest GitHub release (Windows only)
 
-1. Download the zip file for the [current release]().
+1. Download the zip file for the [current release](https://github.com/jackgallivan/8080-emulator-space-invaders/releases/tag/v1.0) [2].
    - On Linux: Install the SDL2 and SDL_mixer development libraries
 
       ```
@@ -132,3 +132,6 @@ The goal of the game is to get a high score by shooting down all the invaders be
 ## References
 
 [1] W. Pfeil, "Build an Emulator and Run Space Invaders ROM," *EECS Project Portal*. [Online]. Available: https://eecs.oregonstate.edu/capstone/submission/pages/viewSingleProject.php?id=UTiao6aM3hcgDDJu. [Accessed: 31-Oct-2022].
+
+[2] J. Gallivan, N. Perez, "“8080-emulator-space-invaders at release-1.0,” GitHub. [Online]. Available:
+https://github.com/jackgallivan/8080-emulator-space-invaders/releases/tag/v1.0. [Accessed: 30-Nov-2022].
