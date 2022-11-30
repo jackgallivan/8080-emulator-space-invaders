@@ -2,7 +2,7 @@ name: C Compiler Error-Check
 
 on:
   push:
-    branches: [ "main", "name-changes" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
